@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 
 namespace somiod.Controllers;
 
@@ -30,3 +30,4 @@ public class WeatherForecastController : ControllerBase
         .ToArray();
     }
 }
+*/
