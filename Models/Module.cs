@@ -14,6 +14,6 @@ namespace somiod.Models
         public DateTime Creation_DT { get; set; }
 
         [Required]
-        public int Parent { get; set; } //Id of the module application
+        public Application Parent { get; set; } //Id of the module application
     }
 }
