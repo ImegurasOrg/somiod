@@ -7,7 +7,7 @@ using System.Configuration;
 //using mysql drive
 namespace somiod.DAL{
     public class InheritanceMappingContext : DbContext {
-		//public DbSet<Application> Aplications { get; set; }
+		public DbSet<Application> Aplications { get; set; }
 		public DbSet<Module> Modules { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
 			var config = new ConfigurationBuilder().AddJsonFile("appconfig.json", optional: false).Build();
