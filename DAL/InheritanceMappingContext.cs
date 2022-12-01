@@ -9,6 +9,7 @@ namespace somiod.DAL{
     public class InheritanceMappingContext : DbContext {
 		public DbSet<Application> Aplications { get; set; }
 		public DbSet<Module> Modules { get; set; }
+		public DbSet<Data> Data { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
 			var config = new ConfigurationBuilder().AddJsonFile("appconfig.json", optional: false).Build();
 
