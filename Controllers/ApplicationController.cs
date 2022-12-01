@@ -4,7 +4,7 @@ using somiod.Models;
 
 namespace somiod.Controllers{
 	[ApiController]
-	[Route("[controller]")]
+	[Route("api/[controller]")]
 	public class ApplicationController : ControllerBase{
 		private readonly InheritanceMappingContext _context;
 		public ApplicationController(InheritanceMappingContext context){
