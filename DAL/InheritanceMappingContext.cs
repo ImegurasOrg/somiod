@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 //Pomelo mysql
 using Pomelo.EntityFrameworkCore.MySql;
-using somiod.Models;
+using somiod.Models; 
 using System.Configuration;
 //using mysql drive
 namespace somiod.DAL{

@@ -5,10 +5,11 @@ namespace somiod.Models{
 	public class Application{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public int Id { get; set; }
+		public int id { get; set; }
 		[Required]
-		public string Name { get; set; }
+		public string name { get; set; }
 		[Required]
-		public DateTime Creation_DT { get; set; }
+		public DateTime creation_dt { get; set; }
+		
 	}
 }
