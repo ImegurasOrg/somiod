@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 //Pomelo mysql
 using Pomelo.EntityFrameworkCore.MySql;
@@ -12,6 +13,7 @@ namespace somiod.DAL{
 		public DbSet<Application> Applications { get; set; }
 		public DbSet<Module> Modules { get; set; }
 
+			
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
 			var config = new ConfigurationBuilder().AddJsonFile("appconfig.json", optional: false).Build();
 
@@ -26,7 +28,9 @@ namespace somiod.DAL{
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
 			//add default date to application
 			modelBuilder.Entity<Application>().Property(a => a.creation_dt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-			
+			//name is unique
+			modelBuilder.Entity<Application>().HasIndex(a => a.name).IsUnique();
+			//cascade applications on removel 
 		}
 	}
 	

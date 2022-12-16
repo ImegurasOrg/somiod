@@ -16,8 +16,8 @@ namespace somiod.Controllers{
 		//true if we hit the right endpoint, else its not up to us
 		[NonAction]
 		public bool preFlight(string res_type){
-			var util = Structures.instance; 
-			if(res_type == util.parse_res_type(Structures.res_type.application)){
+			
+			if(res_type == Structures.parse_res_type(Structures.res_type.application)){
 				return true;
 			}
 			return false; 
@@ -31,10 +31,10 @@ namespace somiod.Controllers{
 				return Ok(applications);
 		}
 		//Get application by id
-		[HttpGet("{name}")]
+		[HttpGet("{id}")]
 		[Produces("application/xml")]
-		public IActionResult GetSingle(string name){
-			var application = _context.Applications.Single(a => a.name == name);
+		public IActionResult GetSingle(int id){
+			var application = _context.Applications.Find(id);
 			if (application == null){
 				return NotFound();
 			}
@@ -44,13 +44,13 @@ namespace somiod.Controllers{
 		[HttpPost]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
-		public IActionResult Post([FromBody]ApplicationEnvelope applicationenvelope){
-			if(!preFlight(applicationenvelope.res_type)){
+		public IActionResult Post([FromBody]Application application){
+			if(!preFlight(application.res_type)){
 				//Find a more apropriate code for this
 				return NotFound();
 			}
 			
-			_context.Applications.Add(applicationenvelope.application);
+			_context.Applications.Add(application);
 			_context.SaveChanges();
 			return Ok();
 		}
@@ -58,14 +58,14 @@ namespace somiod.Controllers{
 		[HttpPut("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
-		public IActionResult Put(string name,[FromBody]ApplicationEnvelope applicationenvelope){
-			if(!preFlight(applicationenvelope.res_type)){
+		public IActionResult Put(string name,[FromBody]Application application){
+			if(!preFlight(application.res_type)){
 				//Find a more apropriate code for this
 				return NotFound();
 			}
-			_context.Applications.Update(applicationenvelope.application);
+			_context.Applications.Update(application);
 			_context.SaveChanges();
-			return Ok(applicationenvelope.application);
+			return Ok(application);
 		}
 		//Delete application
 		[HttpDelete("{name}")]
@@ -91,15 +91,5 @@ namespace somiod.Controllers{
 
 
 	}
-	public class ApplicationEnvelope{
-			//Forces the res_type to be application in swagger
-			[DefaultValue("application")]
-			public string res_type { get; set; }
-			public Application application { get; set; }
-			public ApplicationEnvelope(string res_type, Application application){
-				this.res_type = res_type;
-				this.application = application;
-			}
-
-		}
+	
 }
