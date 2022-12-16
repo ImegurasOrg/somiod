@@ -7,8 +7,11 @@ using System.Configuration;
 //using mysql drive
 namespace somiod.DAL{
     public class InheritanceMappingContext : DbContext {
-		public DbSet<Application> Aplications { get; set; }
+		//ignore warning(if this is null might as well crash the program)
+		#pragma warning disable CS8618
+		public DbSet<Application> Applications { get; set; }
 		public DbSet<Module> Modules { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
 			var config = new ConfigurationBuilder().AddJsonFile("appconfig.json", optional: false).Build();
 
@@ -21,6 +24,9 @@ namespace somiod.DAL{
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
+			//add default date to application
+			modelBuilder.Entity<Application>().Property(a => a.creation_dt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+			
 		}
 	}
 	
