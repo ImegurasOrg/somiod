@@ -1,13 +1,16 @@
 
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 //Pomelo mysql
 using Pomelo.EntityFrameworkCore.MySql;
-using somiod.Models;
+using somiod.Models; 
 using System.Configuration;
 //using mysql drive
 namespace somiod.DAL{
     public class InheritanceMappingContext : DbContext {
-		public DbSet<Application> Aplications { get; set; }
+		//ignore warning(if this is null might as well crash the program)
+		#pragma warning disable CS8618
+		public DbSet<Application> Applications { get; set; }
 		public DbSet<Module> Modules { get; set; }
 		public DbSet<Data> Data { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
@@ -22,6 +25,12 @@ namespace somiod.DAL{
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
+			//add default date to application
+			modelBuilder.Entity<Application>().Property(a => a.creation_dt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+			//name is unique
+			modelBuilder.Entity<Application>().HasIndex(a => a.name).IsUnique();
+			//cascade applications on removel 
+			modelBuilder.Entity<Module>().HasOne(m => m.parent).WithMany(a => a.modules).OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 	

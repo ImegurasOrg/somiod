@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using somiod.DAL;
 
@@ -10,9 +11,10 @@ using somiod.DAL;
 namespace somiod.Migrations
 {
     [DbContext(typeof(InheritanceMappingContext))]
-    partial class InheritanceMappingContextModelSnapshot : ModelSnapshot
+    [Migration("20221215214213_AcurateApplicationRouting")]
+    partial class AcurateApplicationRouting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,20 +27,14 @@ namespace somiod.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("creation_dt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    b.Property<DateTime>("creation_dt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("id");
-
-                    b.HasIndex("name")
-                        .IsUnique();
 
                     b.ToTable("Applications");
                 });
@@ -69,17 +65,12 @@ namespace somiod.Migrations
             modelBuilder.Entity("somiod.Models.Module", b =>
                 {
                     b.HasOne("somiod.Models.Application", "parent")
-                        .WithMany("modules")
+                        .WithMany()
                         .HasForeignKey("parentid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("parent");
-                });
-
-            modelBuilder.Entity("somiod.Models.Application", b =>
-                {
-                    b.Navigation("modules");
                 });
 #pragma warning restore 612, 618
         }

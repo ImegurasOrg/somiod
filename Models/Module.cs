@@ -7,15 +7,24 @@ namespace somiod.Models
     {
         [Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public int id { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string name { get; set; }
 
         [Required]
-        public DateTime Creation_DT { get; set; }
+        public DateTime creation_dt { get; set; }
 
         [Required]
-        public Application Parent { get; set; } //Id of the module application
+        public Application parent { get; set; } //Id of the module application
+		public Module(string name, Application parent){
+			this.name=name;
+			this.parent=parent;
+			this.creation_dt=DateTime.Now;
+
+		}
+		//Blank constructor
+		//Shouldnt be used
+		public Module():this("DefaultModule"+DateTime.Now.ToString("yyyyMMddHHmmss"), new Application()){}
     }
 }
