@@ -63,7 +63,16 @@ namespace somiod.Controllers{
 				//Find a more apropriate code for this
 				return NotFound();
 			}
-			_context.Applications.Update(application);
+			var app = _context.Applications.Single(a => a.name == name);
+			if(app == null){
+				return NotFound();
+			}
+			// NO id changes
+			app.name = application.name;
+			//app.res_type = application.res_type;
+			app.creation_dt = application.creation_dt;
+
+			_context.Applications.Update(app);
 			_context.SaveChanges();
 			return Ok(application);
 		}
