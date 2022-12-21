@@ -31,6 +31,7 @@ namespace somiod.DAL{
 			//name is unique
 			modelBuilder.Entity<Application>().HasIndex(a => a.name).IsUnique();
 			//cascade applications on removel 
+			modelBuilder.Entity<Module>().HasOne(m => m.parent).WithMany(a => a.modules).OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 	

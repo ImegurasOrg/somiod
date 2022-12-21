@@ -24,7 +24,8 @@ namespace somiod.Models{
 		public string res_type { get; set; }
 
 		//list of children modules
-		public List<Module> modules { get; set; }
+		[DefaultValue(null)]
+		public List<Module>? modules { get; set; }
 		public Application(string name){
 			this.modules = new List<Module>();
 			
