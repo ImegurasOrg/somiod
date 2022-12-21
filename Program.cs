@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Configuration;
@@ -35,8 +36,10 @@ namespace somiod{
 				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
-			//consume XML, produces XML
-			
+			// route / redirects to swagger
+			var option = new RewriteOptions();
+			option.AddRedirect("^$", "swagger");
+			app.UseRewriter(option);
 
 			//add cors permissive
 			app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());

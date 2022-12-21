@@ -18,3 +18,7 @@ If you do not have Docker desktop you can run with:
 ## Appconfig
 
 in order to make the project run properly you need an appconfig.json pointing to a endpoint, if you are in the project the common endpoint is mentioned on discord so that you dont have to manually do the appconfig.json from scratch
+
+## Addendum 
+
+Due to the college's restrictions and policies on **IEEE 802.11,** comonly known as wifi, the project wont work properly with such a connection. The restrictions involve rules against our AWS sql server endpoint. However the Ethernet seems to be more lax and as such seems to permit the communication with the aforementioned endpoint.
