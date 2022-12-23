@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using somiod.DAL;
 
@@ -10,9 +11,10 @@ using somiod.DAL;
 namespace somiod.Migrations
 {
     [DbContext(typeof(InheritanceMappingContext))]
-    partial class InheritanceMappingContextModelSnapshot : ModelSnapshot
+    [Migration("20221223181008_dataModel")]
+    partial class dataModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,7 +96,7 @@ namespace somiod.Migrations
             modelBuilder.Entity("somiod.Models.Data", b =>
                 {
                     b.HasOne("somiod.Models.Module", "parent")
-                        .WithMany("datas")
+                        .WithMany("modules")
                         .HasForeignKey("parentid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -120,7 +122,7 @@ namespace somiod.Migrations
 
             modelBuilder.Entity("somiod.Models.Module", b =>
                 {
-                    b.Navigation("datas");
+                    b.Navigation("modules");
                 });
 #pragma warning restore 612, 618
         }
