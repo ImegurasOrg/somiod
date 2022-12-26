@@ -45,9 +45,15 @@ namespace somiod.Controllers{
 				return UnprocessableEntity();
 			}
 			var app=application.fromDTO();
+			//check if application already exists
+			if(_context.Applications.Any(a => a.name == app.name)){
+				return Conflict();
+			}
+	
+
 			_context.Applications.Add(app);
 			_context.SaveChanges();
-			return Ok(app);
+			return Ok(application);
 		}
 		//Update application
 		[HttpPut("{name}")]
