@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Xml.Serialization;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using somiod.DAL;
 using somiod.Models;
 using somiod.utils;
@@ -28,9 +29,13 @@ namespace somiod.Controllers{
 				return UnprocessableEntity();
 			}
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
-			//TODO: mod?.parent?.name != application
+			
 			if(mod == null){
-
+				return UnprocessableEntity();
+			}
+			//load parent
+			_context.Entry(mod).Reference(m => m.parent).Load();
+			if(mod.parent?.name != application){
 				return UnprocessableEntity();
 			}
 			Data data = dataDTO.fromDTO();
@@ -39,6 +44,7 @@ namespace somiod.Controllers{
 			_context.SaveChanges();
 			return Ok();
 		}
+		
 		
 		
 	}

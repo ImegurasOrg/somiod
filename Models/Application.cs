@@ -23,15 +23,14 @@ namespace somiod.Models{
 		[DefaultValue("application")]
 		public string res_type { get; set; }
 
-		//list of children modules
-		//[DefaultValue(null)]
-		//public List<Module>? modules { get; set; }
+		public virtual ICollection<Module> modules { get; set; }
+
 		public Application(string name){
 			//this.modules = new List<Module>();
-			
 			this.res_type=Structures.parse_res_type(Structures.res_type.application);
 			this.name = name;
 			creation_dt = DateTime.Now;
+			this.modules=new List<Module>();
 		}
 		//Blank constructor 
 		public Application(): this("DefaultApplication"+DateTime.Now.ToString("yyyyMMddHHmmss")){}

@@ -16,16 +16,17 @@ namespace somiod.Models
         [Required]
         public DateTime creation_dt { get; set; }
 		
-		//[DefaultValue(null)]
-		//public List<Data>? datas { get; set; }
+		
+		public virtual ICollection<Data> datas { get; set; }
 
        
         public Application? parent { get; set; } //Id of the module application
 		public Module(string name){
-			//datas=new List<Data>();
+			
 			this.name=name;
 			//this.parent=parent;
 			this.creation_dt=DateTime.Now;
+			datas=new List<Data>();
 
 		}
 		//Blank constructor
