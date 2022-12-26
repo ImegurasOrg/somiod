@@ -42,9 +42,32 @@ namespace somiod.Controllers{
 			data.parent=mod;
 			_context.Add(data);
 			_context.SaveChanges();
-			return Ok();
+			return Ok(dataDTO);
 		}
-		
+		//HAS TO BE ID DUE TO NOT BEING UNIQUE
+		[HttpDelete("{application}/{module}/{id}")]
+		[Produces("application/xml")]
+		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){
+			var data = _context.Data.Find(id);
+			if(data == null){
+				return NotFound();
+			}
+
+
+			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
+			if(mod == null){
+				return UnprocessableEntity();
+			}
+			//load parent
+			_context.Entry(mod).Reference(m => m.parent).Load();
+			if(mod.parent?.name != application){
+				return UnprocessableEntity();
+			}
+			
+			_context.Remove(data);
+			_context.SaveChanges();
+			return Ok(new DataDTO(data));
+		}
 		
 		
 	}
@@ -70,7 +93,9 @@ namespace somiod.Controllers{
 		} 
 		public DataDTO(string content, int id):this(content){
 			this.id = id;
-
+		}
+		public DataDTO(Data data):this(data.content, data.id){
+			this.creation_dt = data.creation_dt;
 		}
 		public DataDTO():this("SampleData"+DateTime.Now.ToString("yyyyMMddHHmmss")){}
 

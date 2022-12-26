@@ -32,8 +32,13 @@ namespace somiod.Models{
 			creation_dt = DateTime.Now;
 			this.modules=new List<Module>();
 		}
+		public Application(string name, int id, DateTime creation_dt):this(name){
+			this.id=id;
+			this.creation_dt=creation_dt;
+		}
 		//Blank constructor 
 		public Application(): this("DefaultApplication"+DateTime.Now.ToString("yyyyMMddHHmmss")){}
+		
 		
 	}
 }
