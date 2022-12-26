@@ -29,7 +29,9 @@ namespace somiod.Models{
 			//this.parent = parent;
 			this.res_type= Structures.res_type_str[(int)Structures.res_type.data];
 		}
-		
+		//Blank constructor
+		public Data():this("SampleData"){}
+
     }
 	//This should be used as a d 
 	

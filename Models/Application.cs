@@ -24,10 +24,10 @@ namespace somiod.Models{
 		public string res_type { get; set; }
 
 		//list of children modules
-		[DefaultValue(null)]
-		public List<Module>? modules { get; set; }
+		//[DefaultValue(null)]
+		//public List<Module>? modules { get; set; }
 		public Application(string name){
-			this.modules = new List<Module>();
+			//this.modules = new List<Module>();
 			
 			this.res_type=Structures.parse_res_type(Structures.res_type.application);
 			this.name = name;
