@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Xml.Serialization;
+
 using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
@@ -19,107 +21,31 @@ namespace somiod.Controllers{
         //Through the REST API, it must be possible to create, modify, list, and delete each available resource. Data resources (records) and subscription resources only allow creation and deletion.
 		[HttpPost("{application}/{module}")]
 		[Consumes("application/xml")]
-		public IActionResult Post([FromRoute]string application, [FromRoute]string module){
-			System.IO.StreamReader reader = new System.IO.StreamReader(Request.Body);
-			var body = reader.ReadToEndAsync();
-			//Console.WriteLine(body.Result);
-			XmlSerializer serializer = new XmlSerializer(typeof(DataDTO));
-			//body.result to string
-			System.IO.Stream str = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(body.Result));
-			DataDTO parsedDataDTO = (DataDTO)serializer.Deserialize(str);
-			Console.WriteLine(parsedDataDTO.content);
-			return new ContentResult{
-				ContentType = "application/xml",
-				Content = "<done>ok</done>",
-				StatusCode = 200
-
-			};
-			/*if(!preFlight(dataDTO.res_type)){
+		[Produces("application/xml")]
+		public IActionResult Post([FromRoute]string application, [FromRoute]string module, [FromBody]DataDTO dataDTO){
+			if(!preFlight(dataDTO.res_type)){
 				//Find a more apropriate code for this
-				return new ContentResult{
-					ContentType = "application/xml",
-					Content = "<error>Invalid resource type</error>",
-					StatusCode = 400
-
-				};
-				
+				return UnprocessableEntity();
 			}
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
+			//TODO: mod?.parent?.name != application
 			if(mod == null){
-				return new ContentResult{
-					ContentType = "application/xml",
-					Content = "<error>No such module</error>",
-					StatusCode = 400
 
-				};
+				return UnprocessableEntity();
 			}
-			if(mod.parent.name != application){
-				//TODO URGENT: Should this be an error or a warning?
-			}
-
-			Data datatosave = new Data(dataDTO.content);
-
-			datatosave.parent=mod;
-			_context.Add(datatosave);
+			Data data = dataDTO.fromDTO();
+			data.parent=mod;
+			_context.Add(data);
 			_context.SaveChanges();
-
-			return new ContentResult{
-				ContentType = "application/xml",
-				Content = "<success>Resource created</success>",
-				StatusCode = 200
-
-			};
-			
-		
-			/*
-		
-			Console.WriteLine(mod.name);
-			
-			/*
-			Data datatosave = new Data(data);
-			
-			//TODO: derefernce here... fix later
-			mod.datas.Add(datatosave);
-
-			_context.Add(datatosave);
-			_context.SaveChanges();*/
-		}
-		[HttpPost("{module}")]
-		[Consumes("application/xml")]
-		public IActionResult testePost([FromRoute] string module, [FromBody]teste teste){
-			Console.WriteLine(teste.content);
-			Console.WriteLine(module);
-			//Microsoft.AspNetCore.Routing.RouteValueDictionary routeValues = Request.RouteValues;
-			//string module = routeValues["module"].ToString();
-			//Console.WriteLine("POST"+"a"+module);
-			//Console.WriteLine("POST"+"a"+module);
-			//parse body manually
-			//System.IO.StreamReader reader = new System.IO.StreamReader(Request.Body);
-			//var body = reader.ReadToEndAsync();
-			//Console.WriteLine(body.Result);
-
-			return new ContentResult{
-				ContentType = "application/xml",
-				Content = "<done>Invalid resource type</done>",
-				StatusCode = 200
-			};
+			return Ok();
 		}
 		
 		
-	}
-	public class teste{
-		[FromBody]
-		public string content { get; set; }
-		public teste(string content){
-			this.content = content;
-		}
-		public teste(){
-			this.content = "default";
-		}
 	}
 
 	public class DataDTO{
-		public int id { get; set; }
+
+		public int? id { get; set; }
 
 		[DefaultValue("data")]
 		public string res_type { get; set; }
@@ -129,19 +55,28 @@ namespace somiod.Controllers{
 
 		private DateTime? creation_dt { get; set; }
 
-        public DataDTO(int id, string content){
-			this.id = id;
+        public DataDTO(string content){
 			this.res_type = Structures.res_type_str[(int)Structures.res_type.data];
 			this.content = content;
 			this.creation_dt = DateTime.Now;
 
 
 		} 
-		public DataDTO(){
-			this.res_type = Structures.res_type_str[(int)Structures.res_type.data];
-			this.creation_dt = DateTime.Now;
-		}
+		public DataDTO(string content, int id):this(content){
+			this.id = id;
 
+		}
+		public DataDTO():this("SampleData"+DateTime.Now.ToString("yyyyMMddHHmmss")){}
+
+		public Data fromDTO(){
+			if(this.id == null){
+				return new Data(this.content);
+			}
+			if(this.creation_dt == null){
+				return new Data(this.content, this.id.Value, DateTime.Now);
+			}
+			return new Data(this.content, this.id.Value, this.creation_dt.Value);
+		}
 		//XML Serializer needs a default constructor
 		
 	}

@@ -19,17 +19,17 @@ namespace somiod.Models
 		//[DefaultValue(null)]
 		//public List<Data>? datas { get; set; }
 
-        [Required]
-        public Application parent { get; set; } //Id of the module application
-		public Module(string name, Application parent){
+       
+        public Application? parent { get; set; } //Id of the module application
+		public Module(string name){
 			//datas=new List<Data>();
 			this.name=name;
-			this.parent=parent;
+			//this.parent=parent;
 			this.creation_dt=DateTime.Now;
 
 		}
 		//Blank constructor
 		//Shouldnt be used
-		public Module():this("DefaultModule"+DateTime.Now.ToString("yyyyMMddHHmmss"), new Application()){}
+		public Module():this("DefaultModule"+DateTime.Now.ToString("yyyyMMddHHmmss")){}
     }
 }

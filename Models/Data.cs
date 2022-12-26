@@ -22,16 +22,20 @@ namespace somiod.Models{
         
         public DateTime? creation_dt { get; set; }
 		
-        [Required]
-        public Module parent { get; set; } //Id of the module application
+        public Module? parent { get; set; } //Id of the module application
+
+
 		public Data(string content){
 			this.content = content;
 			//this.parent = parent;
 			this.res_type= Structures.res_type_str[(int)Structures.res_type.data];
 		}
 		//Blank constructor
-		public Data():this("SampleData"){}
-
+		public Data():this("SampleData"+DateTime.Now.ToString("yyyyMMddHHmmss")){}
+		public Data(string content, int id, DateTime creation_dt):this(content){
+			this.id=id;
+			this.creation_dt=creation_dt;
+		}
     }
 	//This should be used as a d 
 	
