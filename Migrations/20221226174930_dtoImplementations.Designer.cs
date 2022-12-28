@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using somiod.DAL;
 
@@ -10,9 +11,10 @@ using somiod.DAL;
 namespace somiod.Migrations
 {
     [DbContext(typeof(InheritanceMappingContext))]
-    partial class InheritanceMappingContextModelSnapshot : ModelSnapshot
+    [Migration("20221226174930_dtoImplementations")]
+    partial class dtoImplementations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,15 +83,12 @@ namespace somiod.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("parentid")
                         .HasColumnType("int");
 
                     b.HasKey("id");
-
-                    b.HasIndex("name")
-                        .IsUnique();
 
                     b.HasIndex("parentid");
 
@@ -99,9 +98,8 @@ namespace somiod.Migrations
             modelBuilder.Entity("somiod.Models.Data", b =>
                 {
                     b.HasOne("somiod.Models.Module", "parent")
-                        .WithMany("datas")
-                        .HasForeignKey("parentid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("parentid");
 
                     b.Navigation("parent");
                 });
@@ -109,21 +107,10 @@ namespace somiod.Migrations
             modelBuilder.Entity("somiod.Models.Module", b =>
                 {
                     b.HasOne("somiod.Models.Application", "parent")
-                        .WithMany("modules")
-                        .HasForeignKey("parentid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("parentid");
 
                     b.Navigation("parent");
-                });
-
-            modelBuilder.Entity("somiod.Models.Application", b =>
-                {
-                    b.Navigation("modules");
-                });
-
-            modelBuilder.Entity("somiod.Models.Module", b =>
-                {
-                    b.Navigation("datas");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using somiod.DAL;
 
@@ -10,9 +11,10 @@ using somiod.DAL;
 namespace somiod.Migrations
 {
     [DbContext(typeof(InheritanceMappingContext))]
-    partial class InheritanceMappingContextModelSnapshot : ModelSnapshot
+    [Migration("20221223183107_typofixmodules")]
+    partial class typofixmodules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,7 +60,7 @@ namespace somiod.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int?>("parentid")
+                    b.Property<int>("parentid")
                         .HasColumnType("int");
 
                     b.HasKey("id");
@@ -75,21 +77,16 @@ namespace somiod.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("creation_dt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
-                    b.Property<int?>("parentid")
+                    b.Property<int>("parentid")
                         .HasColumnType("int");
 
                     b.HasKey("id");
-
-                    b.HasIndex("name")
-                        .IsUnique();
 
                     b.HasIndex("parentid");
 
@@ -101,7 +98,8 @@ namespace somiod.Migrations
                     b.HasOne("somiod.Models.Module", "parent")
                         .WithMany("datas")
                         .HasForeignKey("parentid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("parent");
                 });
@@ -111,7 +109,8 @@ namespace somiod.Migrations
                     b.HasOne("somiod.Models.Application", "parent")
                         .WithMany("modules")
                         .HasForeignKey("parentid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("parent");
                 });
