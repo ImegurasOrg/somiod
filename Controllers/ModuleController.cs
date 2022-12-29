@@ -14,7 +14,18 @@ namespace somiod.Controllers{
 			_context = context;
 			res_type= Structures.res_type.module;
 		}
-	
+		[HttpGet("{application}")]
+		[Produces("application/xml")]
+		public IActionResult Get([FromRoute]string application){
+			var app = _context.Applications.SingleOrDefault(a => a.name == application);
+			if (app == null){
+				return UnprocessableEntity();
+			}
+			//Cast to DTO
+			List<ModuleDTO> modules = new List<ModuleDTO>(_context.Modules.Where(m => m.parent == app).ToList().Select(m => new ModuleDTO(m)));
+				//TODO oq fazer se a lista estiver vazia?
+				return Ok(modules);
+		}
 		//Get module by id
 		[HttpGet("{application}/{id}")]
 		[Produces("application/xml")]
