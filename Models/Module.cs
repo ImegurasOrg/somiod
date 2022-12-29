@@ -29,6 +29,11 @@ namespace somiod.Models
 			datas=new List<Data>();
 
 		}
+		public Module(string name, int id, DateTime creation_dt):this(name){
+			this.id=id;
+			this.creation_dt=creation_dt;
+			
+		}
 		//Blank constructor
 		//Shouldnt be used
 		public Module():this("DefaultModule"+DateTime.Now.ToString("yyyyMMddHHmmss")){}
