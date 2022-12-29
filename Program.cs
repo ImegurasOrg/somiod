@@ -17,42 +17,43 @@ using somiod.DAL;
 
 namespace somiod{
 	public class Program{
-		public static void Main(string[] args){
-			var builder = WebApplication.CreateBuilder(args);
+		//well it was good while it lasted... unfortunately we need custom stuff
+		// public static void Main(string[] args){
+		// 	var builder = WebApplication.(args);
 			
-			// Add services to the container.
-			builder.Services.AddDbContext<InheritanceMappingContext>();
-			//quick plug on the enabling of xml stuff
-			builder.Services.AddControllers().AddXmlSerializerFormatters();
-			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen();
 			
-			var app = builder.Build();
+			
+		// 	var app = builder.Build();
 		
-			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
-			{
-				app.UseSwagger();
-				app.UseSwaggerUI();
-			}
-			// route / redirects to swagger
-			var option = new RewriteOptions();
-			option.AddRedirect("^$", "swagger");
-			app.UseRewriter(option);
-
-			//add cors permissive
-			app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+		// 	Configure the HTTP request pipeline.
+		// 	/*if (app.Environment.IsDevelopment())
+		// 	{
+		// 		app.UseSwagger();
+		// 		app.UseSwaggerUI();
+		// 	}*/
+		// 	route / redirects to swagger
+			
+		// 	add cors permissive
+		// 	app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 		
-			//TOCHECK: is this needed? this might cause problems!
-			app.UseHttpsRedirection();
+		// 	TOCHECK: is this needed? this might cause problems!
+		// 	app.UseHttpsRedirection();
 
-			app.UseAuthorization();
+		// 	app.UseAuthorization();
 
-			app.MapControllers();
+		// 	app.MapControllers();
 
-			app.Run();
-		}
+		// 	app.Run();
+		// }
+		public static string rootFolder = Environment.CurrentDirectory;
+        static void Main(string[] args) {
+			CreateHostBuilder(args).Build().Run();
 
+        }
+		public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => {
+                    webBuilder.UseStartup<Startup>();
+					
+		});		
 	}
 }
