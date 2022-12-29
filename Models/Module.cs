@@ -18,7 +18,7 @@ namespace somiod.Models
 		
 		
 		public virtual ICollection<Data> datas { get; set; }
-
+		public virtual ICollection<Subscription> subscriptions { get; set; }
        
         public Application? parent { get; set; } //Id of the module application
 		public Module(string name){
@@ -27,6 +27,7 @@ namespace somiod.Models
 			//this.parent=parent;
 			this.creation_dt=DateTime.Now;
 			datas=new List<Data>();
+			subscriptions=new List<Subscription>();
 
 		}
 		public Module(string name, int id, DateTime creation_dt):this(name){

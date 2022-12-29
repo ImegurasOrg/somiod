@@ -13,6 +13,9 @@ namespace somiod.DAL{
 		public DbSet<Application> Applications { get; set; }
 		public DbSet<Module> Modules { get; set; }
 		public DbSet<Data> Data { get; set; }
+		public DbSet<Subscription> Subscriptions { get; set; }
+		#pragma warning restore CS8618
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
 			var config = new ConfigurationBuilder().AddJsonFile("appconfig.json", optional: false).Build();
 
@@ -49,8 +52,12 @@ namespace somiod.DAL{
 				//cascade data on removel 
 				modelBuilder.Entity<Data>().HasOne(d => d.parent).WithMany(m => m.datas).OnDelete(DeleteBehavior.Cascade);
 				modelBuilder.Entity<Data>().Navigation(d=>d.parent).UsePropertyAccessMode(PropertyAccessMode.Property);
-        
-				//modelBuilder.Entity<Data>().HasOne(d => d.parent).WithMany(m => m.datas).OnDelete(DeleteBehavior.Cascade);
+			//SUBSCRIPTION
+				//add default date to subscription
+				modelBuilder.Entity<Subscription>().Property(s => s.creation_dt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+				//cascade subscription on removel 
+				modelBuilder.Entity<Subscription>().HasOne(s => s.parent).WithMany(m => m.subscriptions).OnDelete(DeleteBehavior.Cascade);
+				modelBuilder.Entity<Subscription>().Navigation(s=>s.parent).UsePropertyAccessMode(PropertyAccessMode.Property);
 
 		}
 	}
