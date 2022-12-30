@@ -42,6 +42,22 @@ namespace somiod.Controllers{
 			data.parent=mod;
 			_context.Add(data);
 			_context.SaveChanges();
+			//broker vem das subscriptions em que tenho o module como parent e event created but not deleted? , mod = topic e data = message
+			//query get subscriptions where module = mod
+			//subctract from count created - count deleted
+			//if count > 0 then send message(topic = mod, message = data)
+			List<OmeuTipo>? result = Helper.CheckSubscritions(module);
+			if(result != null){
+				foreach(var item in result){
+					//todo: if count < 0 something is wrong
+					if(item.Count > 0){
+						//todo: send xml in message
+						Helper.PublishAsync(item.Endpoint, module, dataDTO.ToString());
+					}
+				}
+			} else {
+				Console.WriteLine("Cannot send notification");	
+			}
 			return Ok(dataDTO);
 		}
 		//HAS TO BE ID DUE TO NOT BEING UNIQUE
