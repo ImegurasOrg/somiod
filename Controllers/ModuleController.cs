@@ -125,7 +125,7 @@ namespace somiod.Controllers{
 			
 			if(mod.parent != app){
 				Console.WriteLine("Application is not the modules parent");
-				return UnprocessableEntity();
+				return NotFound();
 			}
 			
 			_context.Modules.Remove(mod);
