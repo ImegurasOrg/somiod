@@ -1,7 +1,11 @@
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using somiod.Controllers;
 using somiod.DAL;
-
+using somiod.utils;
 namespace somiod{
 	public class Startup {
 		public Startup(IConfiguration configuration){
@@ -42,6 +46,63 @@ namespace somiod{
 			app.UseRewriter(option);
 
 			app.UseCors("AllowAll");
+			app.Use(async (context, next) => {
+				
+				//if the path of the url is domain/api/somiod/{application}/{module} then we need to parse the body
+				//and send it to the correct controller
+				//Console.WriteLine(context.Request.Path.Value);
+				string pattern = @"(\/api\/somiod)\/([A-z]*)\/([A-z]*)(\/.+)?$";
+				try{
+					//rewindable body
+					context.Request.EnableBuffering();
+
+					Match match = Regex.Match(context.Request.Path.Value, pattern);
+					if(match.Success){
+						//Check if body contains <res_type>subscription</res_type>
+						//if so redirect to the subscription controller
+						//else dont redirect
+						
+						if(context.Request.Body != null){
+							//Console.WriteLine("Body is not null");
+							//Console.WriteLine(context.Request.Body);
+							
+							using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 1024, true)){
+								var outOfVarnames= await reader.ReadToEndAsync(); 
+								Match match2 = Regex.Match(outOfVarnames, @"<res_type>subscription<\/res_type>");
+								if(match2.Success){
+									//Console.WriteLine("Redirecting to subscription controller");
+									//redirect to subscription controller
+									string padding="";
+									if(!String.IsNullOrEmpty(match.Groups[4].Value)){
+										padding = match.Groups[4].Value; 
+									}
+									/*TODO REMOVE THIS*/
+									Console.WriteLine("Tudo: "+context.Request.Path+"|");
+									Console.WriteLine("0"+match.Groups[1].Value+"|");
+									Console.WriteLine("1"+match.Groups[2].Value+"|");
+									Console.WriteLine("2"+match.Groups[3].Value+"|");
+									Console.WriteLine("3"+padding+"|");
+									context.Request.Path= match.Groups[1].Value+"/Subscription/"+match.Groups[2].Value+"/"+match.Groups[3].Value+padding;
+									Console.WriteLine(context.Request.Path);
+									
+									
+
+								}
+								//rewind the body stream so the controller can read it
+								context.Request.Body.Position = 0;
+
+							}
+						}
+
+					}
+				}catch(NullReferenceException e){
+					Console.WriteLine("O valor do path é nulo"+ e.Message);
+					//TODO GIVE A BAD REQUEST
+					//return a bad request
+					return; 
+				}
+				await next();
+			});
 			app.UseRouting();
 			
 			app.UseAuthorization();
@@ -55,4 +116,5 @@ namespace somiod{
 			});
 		}
 	}	
+	
 }

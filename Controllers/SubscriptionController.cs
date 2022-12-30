@@ -13,7 +13,7 @@ using somiod.utils;
 namespace somiod.Controllers{
     
     [ApiController]
-	[Route("api/somiod/")]
+	[Route("api/somiod/[controller]")]
 	public class SubscriptionController: CustomController{
 		private readonly InheritanceMappingContext _context;
 		public SubscriptionController(InheritanceMappingContext context){
