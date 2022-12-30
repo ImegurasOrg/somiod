@@ -21,11 +21,10 @@ namespace somiod.Controllers{
 		public IActionResult Get(){
 			//Cast to DTO
 			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.ToList().Select(a => new ApplicationDTO(a)));
-				//TODO oq fazer se a lista estiver vazia?
-				return Ok(applications);
+			return Ok(applications);
 		}
 		//Get application by id
-		[HttpGet("{id}")]
+		[HttpGet("{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle(int id){
 
@@ -41,7 +40,6 @@ namespace somiod.Controllers{
 		[Consumes("application/xml")]
 		public IActionResult Post([FromBody]ApplicationDTO application){
 			if(!preFlight(application.res_type)){
-				//Find a more apropriate code for this
 				return UnprocessableEntity();
 			}
 			var app=application.fromDTO();
@@ -67,6 +65,10 @@ namespace somiod.Controllers{
 			var app = _context.Applications.SingleOrDefault(a => a.name == name);
 			if(app == null){
 				return NotFound();
+			}
+			//check if application with name already exists
+			if(_context.Applications.Any(a => a.name == application.name)){
+				return Conflict();
 			}
 			// NO id changes
 			app.name = application.name;
