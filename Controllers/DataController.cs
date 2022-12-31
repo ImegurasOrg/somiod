@@ -35,7 +35,7 @@ namespace somiod.Controllers{
 			}
 			//load parent
 			_context.Entry(mod).Reference(m => m.parent).Load();
-			if(mod.parent?.name != application){
+			if(mod.parent?.name != application){	
 				return UnprocessableEntity();
 			}
 			Data data = dataDTO.fromDTO();
@@ -46,13 +46,13 @@ namespace somiod.Controllers{
 			//query get subscriptions where module = mod
 			//subctract from count created - count deleted
 			//if count > 0 then send message(topic = mod, message = data)
-			List<OmeuTipo>? result = Helper.CheckSubscritions(module);
+			List<OmeuTipo>? result = Helper.CheckSubscritions(module, _context);
 			if(result != null){
 				foreach(var item in result){
 					//todo: if count < 0 something is wrong
 					if(item.Count > 0){
 						//todo: send xml in message
-						Helper.PublishAsync(item.Endpoint, module, dataDTO.ToString());
+						Helper.PublishAsync(item.Endpoint, module, dataDTO);
 					}
 				}
 			} else {

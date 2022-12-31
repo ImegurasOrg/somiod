@@ -3,35 +3,42 @@ using MQTTnet.Client;
 using somiod.DAL;
 using somiod.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace somiod.Controllers{
     public class Helper{
 
-        private static InheritanceMappingContext _context;
-
-        public Helper(InheritanceMappingContext context){
-            _context = context;
-        }
-        public static async Task PublishAsync(string connUri, string topic, string message){
+        public static async Task PublishAsync(string connUri, string topic, DataDTO message){
             var mqttFactory = new MqttFactory();
             using( var mqttClient = mqttFactory.CreateMqttClient()){
-                var options = new MqttClientOptionsBuilder().WithConnectionUri(connUri).Build();
                 try {
+                var options = new MqttClientOptionsBuilder().WithConnectionUri(connUri).Build();
                     using (var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(1))){
                         await mqttClient.ConnectAsync(options, timeoutToken.Token);
                     }
                 }
                 catch (Exception e){
+                    if (e is ArgumentException){
+                        if (e.Message.Contains("Unexpected scheme in uri")){
+                            Console.WriteLine("Invalid URI");
+                            return;
+                        }
+                    } else {
+                        Console.WriteLine("Connection to MQTT broker failed.");
+                    }
                     Console.WriteLine(e);
                     return;
                 }
-                var payload = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(message).Build();
+                string mqttMessage = XmlDataDtoToString(message);
+                Console.WriteLine("Message: " + mqttMessage);
+                var payload = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(mqttMessage).Build();
                 await mqttClient.PublishAsync(payload);
                 await mqttClient.DisconnectAsync();
             }
         }
 
-        public static List<OmeuTipo>? CheckSubscritions(string module){
+        public static List<OmeuTipo>? CheckSubscritions(string module, InheritanceMappingContext _context){
             //query get subscriptions where module = mod
             //subctract from count created - count deleted
             //if count > 0 then send message(topic = mod, message = data)
@@ -53,6 +60,10 @@ namespace somiod.Controllers{
                 Console.WriteLine(e);
             }
             return null;
+        }
+
+        public static string XmlDataDtoToString(DataDTO data){
+            return "<?xml version='1.0' encoding='utf-16'?><data>" + data.content + "</data>";
         }
     }
 

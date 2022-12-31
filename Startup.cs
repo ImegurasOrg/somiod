@@ -13,9 +13,6 @@ namespace somiod{
 		
 			// Add services to the container.
 			services.AddDbContext<InheritanceMappingContext>();
-
-			services.AddScoped<Helper>();
-			new Helper();
 			
 			//quick plug on the enabling of xml stuff
 			services.AddControllers().AddXmlSerializerFormatters();
