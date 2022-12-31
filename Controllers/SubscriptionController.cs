@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using somiod.DAL;
 using somiod.Models;
 using somiod.utils;
+using Swashbuckle.AspNetCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace somiod.Controllers{
     
@@ -20,7 +22,7 @@ namespace somiod.Controllers{
 			_context = context;
             res_type = Structures.res_type.subscription;
 		}
-        //Through the REST API, it must be possible to create, modify, list, and delete each available resource. Data resources (records) and subscription resources only allow creation and deletion.
+	
 		[HttpPost("[controller]/{application}/{module}")]
 		[Consumes("application/xml")]
 		[Produces("application/xml")]
@@ -45,7 +47,7 @@ namespace somiod.Controllers{
 			_context.SaveChanges();
 			return Ok(subscriptionDTO);
 		}
-		//HAS TO BE ID DUE TO NOT BEING UNIQUE
+	
 		[HttpDelete("{application}/{module}/{name}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]string name){
@@ -90,6 +92,10 @@ namespace somiod.Controllers{
 		[RegularExpression("creation|deletion")]
 		public string @event {get;set;}
 		//TODO: Maybe regex?
+		//regular expression for mqtt
+		//mqtt://[a-zA-Z0-9]+:[0-9]+
+		[DefaultValue("mqtt://13.38.228.158:1883")]
+		[RegularExpression("mqtt://[a-zA-Z0-9]+:[0-9]+")]
         public string endpoint {get; set;}
 
 		private DateTime? creation_dt { get; set; }

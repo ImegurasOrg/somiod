@@ -6,7 +6,7 @@ using somiod.utils;
 
 namespace somiod.Controllers{
 	[ApiController]
-	[Route("api/somiod/[controller]")] 
+	[Route("api/somiod/")] 
 	public class ModuleController : CustomController{
 		private readonly InheritanceMappingContext _context;
 		
