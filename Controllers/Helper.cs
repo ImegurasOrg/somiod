@@ -62,7 +62,7 @@ namespace somiod.Controllers{
         }
 
         public static string XmlDataDtoToString(DataDTO data){
-            return "<?xml version='1.0' encoding='utf-16'?><data>" + data.content + "</data>";
+            return "<xml version='1.0' encoding='utf-8'><data>" + data.content + "</data>";
         }
     }
 
