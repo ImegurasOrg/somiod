@@ -5,6 +5,7 @@ using somiod.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Serialization;
 using System.Xml;
+using MQTTnet.Exceptions;
 
 namespace somiod.Controllers{
     public class Helper{
@@ -22,16 +23,15 @@ namespace somiod.Controllers{
                     if (e is ArgumentException){
                         if (e.Message.Contains("Unexpected scheme in uri")){
                             Console.WriteLine("Invalid URI");
-                            return;
                         }
-                    } else {
-                        Console.WriteLine("Connection to MQTT broker failed.");
+                    } else if (e is MqttCommunicationException) {
+                        if (e.Message.Contains("Error while connecting with host")){
+                            Console.WriteLine("Connection to MQTT broker failed.");
+                        }
                     }
-                    Console.WriteLine(e);
                     return;
                 }
                 string mqttMessage = XmlDataDtoToString(message);
-                Console.WriteLine("Message: " + mqttMessage);
                 var payload = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(mqttMessage).Build();
                 await mqttClient.PublishAsync(payload);
                 await mqttClient.DisconnectAsync();
@@ -39,15 +39,14 @@ namespace somiod.Controllers{
         }
 
         public static List<OmeuTipo>? CheckSubscritions(string module, InheritanceMappingContext _context){
-            //query get subscriptions where module = mod
+            //query get subscriptions where module = mod and endpoint  is the same
             //subctract from count created - count deleted
             //if count > 0 then send message(topic = mod, message = data)
             try{
-                Console.WriteLine(_context.Subscriptions);
                 var subscriptions =  _context.Subscriptions
                 .Include(s => s.parent)
                 .DefaultIfEmpty()
-                .Where(s => s.parent.name == module)
+                .Where(s => s.parent != null && s.parent.name == module)
                 .GroupBy(s => s.endpoint);
                 //TODO: make created and deleted into macro
                 var result = subscriptions
