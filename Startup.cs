@@ -51,7 +51,7 @@ namespace somiod{
 				//if the path of the url is domain/api/somiod/{application}/{module} then we need to parse the body
 				//and send it to the correct controller
 				//Console.WriteLine(context.Request.Path.Value);
-				string pattern = @"(\/api\/somiod)\/([A-z]+)\/([A-z]+)\/?$";
+				string pattern = @"(\/api\/somiod)\/([a-zA-Z\-\_0-9]+)\/([a-zA-Z\-\_0-9]+)\/?$";
 				try{
 					//rewindable body
 					context.Request.EnableBuffering();

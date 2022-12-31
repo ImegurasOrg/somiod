@@ -95,8 +95,8 @@ namespace somiod.Controllers{
 		//regular expression for mqtt
 		//mqtt://[a-zA-Z0-9]+:[0-9]+
 		[DefaultValue("mqtt://13.38.228.158:1883")]
-		[RegularExpression("mqtt://[a-zA-Z0-9]+:[0-9]+")]
-        public string endpoint {get; set;}
+		[RegularExpression(@"mqtt://[a-zA-Z0-9]+:[0-9]+|mqtt:\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$", ErrorMessage = "Invalid endpoint, valid endpoints are mqtt://domain:port or mqtt://ipv4:port")]
+		public string endpoint {get; set;}
 
 		private DateTime? creation_dt { get; set; }
 

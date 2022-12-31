@@ -17,7 +17,8 @@ namespace somiod.Models{
 
         [Required]
 		[DefaultValue("SampleData")]
-        public string content { get; set; }
+		[MaxLength(50)]
+		public string content { get; set; }
 
         
         public DateTime? creation_dt { get; set; }

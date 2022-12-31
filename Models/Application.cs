@@ -13,6 +13,7 @@ namespace somiod.Models{
 		[Required]
 		[StringLength(20)]
 		[DefaultValue("DefaultApplication")] // this is just for documentation purposes it does ""nothing""
+		[RegularExpression(@"^[a-zA-Z\-\_0-9]+", ErrorMessage = "Applications names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
 		public string name { get; set; }
 		
 		public DateTime? creation_dt { get; set; }
