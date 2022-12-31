@@ -20,7 +20,7 @@ namespace somiod.Controllers{
 		[Produces("application/xml")]
 		public IActionResult Get(){
 			//Cast to DTO
-			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.ToList().Select(a => new ApplicationDTO(a)));
+			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
 			return Ok(applications);
 		}
 		//Get application by id
