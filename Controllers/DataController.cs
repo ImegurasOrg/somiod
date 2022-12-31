@@ -45,7 +45,7 @@ namespace somiod.Controllers{
 			return Ok(dataDTO);
 		}
 		//HAS TO BE ID DUE TO NOT BEING UNIQUE
-		[HttpDelete("{application}/{module}/{id}")]
+		[HttpDelete("{application}/{module}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){
 			var data = _context.Data.Find(id);

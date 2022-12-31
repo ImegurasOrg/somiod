@@ -27,7 +27,7 @@ namespace somiod.Controllers{
 				return Ok(modules);
 		}
 		//Get module by id
-		[HttpGet("{application}/{id}")]
+		[HttpGet("{application}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle([FromRoute]string application, [FromRoute]int id){
 			var mod = _context.Modules.Find(id);

@@ -13,7 +13,7 @@ using somiod.utils;
 namespace somiod.Controllers{
     
     [ApiController]
-	[Route("api/somiod/[controller]")]
+	[Route("api/somiod/")]
 	public class SubscriptionController: CustomController{
 		private readonly InheritanceMappingContext _context;
 		public SubscriptionController(InheritanceMappingContext context){
@@ -21,7 +21,7 @@ namespace somiod.Controllers{
             res_type = Structures.res_type.subscription;
 		}
         //Through the REST API, it must be possible to create, modify, list, and delete each available resource. Data resources (records) and subscription resources only allow creation and deletion.
-		[HttpPost("{application}/{module}")]
+		[HttpPost("[controller]/{application}/{module}")]
 		[Consumes("application/xml")]
 		[Produces("application/xml")]
 		public IActionResult Post([FromRoute]string application, [FromRoute]string module, [FromBody]SubscriptionDTO subscriptionDTO){
@@ -46,15 +46,13 @@ namespace somiod.Controllers{
 			return Ok(subscriptionDTO);
 		}
 		//HAS TO BE ID DUE TO NOT BEING UNIQUE
-		[HttpDelete("{application}/{module}/{id}")]
+		[HttpDelete("{application}/{module}/{name}")]
 		[Produces("application/xml")]
-		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){
-			var sub = _context.Subscriptions.Find(id);
-			if(sub == null){
+		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]string name){
+			var subs = _context.Subscriptions.DefaultIfEmpty().Where(s => s.name == name);
+			if(subs == null){
 				return NotFound();
 			}
-
-
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
 			if(mod == null){
 				return UnprocessableEntity();
@@ -64,13 +62,14 @@ namespace somiod.Controllers{
 			if(mod.parent?.name != application){
 				return UnprocessableEntity();
 			}
-			
-			_context.Remove(sub);
+			var k = new List<SubscriptionDTO>(subs.Select(a => new SubscriptionDTO(a)));
+			//remove all subscriptions contained in subs
+			_context.RemoveRange(subs);
 			_context.SaveChanges();
-			return Ok(new SubscriptionDTO(sub));
+			//return ok(subs) but subs has to be cast into SubscriptionDTO first
+			
+			return Ok(k);
 		}
-		
-		
 	}
 
 	public class SubscriptionDTO{

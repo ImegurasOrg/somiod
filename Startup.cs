@@ -51,7 +51,7 @@ namespace somiod{
 				//if the path of the url is domain/api/somiod/{application}/{module} then we need to parse the body
 				//and send it to the correct controller
 				//Console.WriteLine(context.Request.Path.Value);
-				string pattern = @"(\/api\/somiod)\/([A-z]*)\/([A-z]*)(\/.+)?$";
+				string pattern = @"(\/api\/somiod)\/([A-z]+)\/([A-z]+)\/?$";
 				try{
 					//rewindable body
 					context.Request.EnableBuffering();
@@ -72,17 +72,13 @@ namespace somiod{
 								if(match2.Success){
 									//Console.WriteLine("Redirecting to subscription controller");
 									//redirect to subscription controller
-									string padding="";
-									if(!String.IsNullOrEmpty(match.Groups[4].Value)){
-										padding = match.Groups[4].Value; 
-									}
+									
 									/*TODO REMOVE THIS*/
 									Console.WriteLine("Tudo: "+context.Request.Path+"|");
 									Console.WriteLine("0"+match.Groups[1].Value+"|");
 									Console.WriteLine("1"+match.Groups[2].Value+"|");
 									Console.WriteLine("2"+match.Groups[3].Value+"|");
-									Console.WriteLine("3"+padding+"|");
-									context.Request.Path= match.Groups[1].Value+"/Subscription/"+match.Groups[2].Value+"/"+match.Groups[3].Value+padding;
+									context.Request.Path= match.Groups[1].Value+"/Subscription/"+match.Groups[2].Value+"/"+match.Groups[3].Value;
 									Console.WriteLine(context.Request.Path);
 									
 									
