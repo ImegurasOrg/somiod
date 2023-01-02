@@ -55,8 +55,9 @@ namespace somiod{
 				try{
 					//rewindable body
 					context.Request.EnableBuffering();
-
+					#pragma warning disable //the day context.Request.Path.Value is null is the day asp.net becomes obsolete
 					Match match = Regex.Match(context.Request.Path.Value, pattern);
+					#pragma warning restore
 					if(match.Success){
 						//Check if body contains <res_type>subscription</res_type>
 						//if so redirect to the subscription controller

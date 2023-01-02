@@ -29,23 +29,23 @@ namespace somiod.Controllers{
 		public IActionResult Post([FromRoute]string application, [FromRoute]string module, [FromBody]SubscriptionDTO subscriptionDTO){
 			if(!preFlight(subscriptionDTO.res_type)){
 				//Find a more apropriate code for this
-				return UnprocessableEntity();
+				return UnprocessableEntity("Invalid resource type");
 			}
 			//check if theres no conflicts with id
 			var sub= _context.Subscriptions.SingleOrDefault(s => s.id == subscriptionDTO.id);
 			if(sub != null){
-				return Conflict();
+				return Conflict("Subscription id already exists");
 			}
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
 			if(mod == null){
-				return UnprocessableEntity();
+				return NotFound("No such module found, make shure the name is correct");
 			}
 
 
 			//load parent
 			_context.Entry(mod).Reference(m => m.parent).Load();
 			if(mod.parent?.name != application){
-				return UnprocessableEntity();
+				return NotFound("The name of the modules parent doesnt match with application name, Did you mean: "+mod.parent?.name+"?");
 			}
 			Subscription subscription = subscriptionDTO.fromDTO();
 			subscription.parent=mod;
@@ -57,26 +57,30 @@ namespace somiod.Controllers{
 		[HttpDelete("{application}/{module}/{name}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]string name){
-			var subs = _context.Subscriptions.DefaultIfEmpty().Where(s => s.name == name);
+			//s.parent != null is to disable warnings
+			var subs = _context.Subscriptions.Include(s=>s.parent).DefaultIfEmpty().Where(s => s.name == name && s.parent!=null && s.parent.name == module).ToList();
 			if(subs == null){
-				return NotFound();
+				return NotFound("No such subscription found, make shure the name is correct and that the module is its parent");
 			}
-			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
-			if(mod == null){
-				return UnprocessableEntity();
-			}
-			//load parent
-			_context.Entry(mod).Reference(m => m.parent).Load();
-			if(mod.parent?.name != application){
-				return UnprocessableEntity();
-			}
-			var k = new List<SubscriptionDTO>(subs.Select(a => new SubscriptionDTO(a)));
-			//remove all subscriptions contained in subs
-			_context.RemoveRange(subs);
-			_context.SaveChanges();
-			//return ok(subs) but subs has to be cast into SubscriptionDTO first
 			
-			return Ok(k);
+			var l = subs.FirstOrDefault()?.parent;
+			if(l!=null){
+				_context.Entry(l).Reference(m => m.parent).Load();
+				if(subs.FirstOrDefault()?.parent?.parent?.name != application){
+					return NotFound("The name provided doesnt match with the name of the parent of the module. Did you mean: "+subs.FirstOrDefault()?.parent?.parent?.name +"?");
+				}
+				
+				var k = new List<SubscriptionDTO>(subs.Select(a => new SubscriptionDTO(a)));
+				//remove all subscriptions contained in subs
+				_context.RemoveRange(subs);
+				_context.SaveChanges();
+				//return ok(subs) but subs has to be cast into SubscriptionDTO first
+				
+				return Ok(k);
+			}
+			return UnprocessableEntity("Apparently we found a subscription but the backend failed to retrieve a parent");
+				
+			
 		}
 	}
 

@@ -21,7 +21,7 @@ namespace somiod.Controllers{
 		public IActionResult Get([FromRoute]string application){
 			var app = _context.Applications.SingleOrDefault(a => a.name == application);
 			if (app == null){
-				return UnprocessableEntity();
+				return NotFound("Application not found");
 			}
 			//Cast to DTO
 			List<ModuleDTO> modules = new List<ModuleDTO>(_context.Modules.Where(m => m.parent == app).ToList().Select(m => new ModuleDTO(m)));
@@ -34,12 +34,12 @@ namespace somiod.Controllers{
 		public IActionResult GetSingle([FromRoute]string application, [FromRoute]int id){
 			var mod = _context.Modules.Find(id);
 			if (mod == null){
-				return NotFound();
+				return NotFound("No such module found");
 			}
 
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if (app == null){
-				return UnprocessableEntity();
+			_context.Entry(mod).Reference(m => m.parent).Load();
+			if(mod.parent?.name != application){	
+				return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
 			}
 			return Ok(new ModuleDTO(mod));
 		}
@@ -49,12 +49,12 @@ namespace somiod.Controllers{
 		public IActionResult GetSinglet([FromRoute]string application, [FromRoute]string name){
 			var mod = _context.Modules.SingleOrDefault(m => m.name == name);
 			if (mod == null){
-				return NotFound();
+				return NotFound("No such module found");
 			}
 
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if (app == null){
-				return UnprocessableEntity();
+			_context.Entry(mod).Reference(m => m.parent).Load();
+			if(mod.parent?.name != application){	
+				return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
 			}
 			//fill 
 			var k =new ModuleWithDataDTO(mod);
@@ -70,16 +70,16 @@ namespace somiod.Controllers{
 		public IActionResult Post([FromRoute] string application, [FromBody]ModuleDTO moduleDTO){
 			if(!preFlight(moduleDTO.res_type)){
 				//Find a more apropriate code for this
-				return UnprocessableEntity();
+				return UnprocessableEntity("Invalid resource type");
 			}
 			//check if application exists
 			var app = _context.Applications.SingleOrDefault(a => a.name == application);
 			if(app == null){
-				return NotFound();
+				return NotFound("No such application found");
 			}
 			//check uniqueness
 			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == app.id)){
-				return Conflict();
+				return Conflict("Either a module with this name already exists or the id is already in use");
 			}
 			var mod=moduleDTO.fromDTO();
 			mod.parent = app;
@@ -95,26 +95,22 @@ namespace somiod.Controllers{
 		public IActionResult Put([FromRoute]string application, [FromRoute]string name,[FromBody]ModuleDTO moduleDTO){
 			if(!preFlight(moduleDTO.res_type)){
 				//Find a more apropriate code for this
-				return UnprocessableEntity();
+				return UnprocessableEntity("Invalid resource type");
 			}
 			var mod = _context.Modules.SingleOrDefault(a => a.name == name);
 			if(mod == null){
-				return NotFound();
+				return NotFound("No module with such name exists");
 			}
-			//check if application is the modules parent
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if(app == null){
-				Console.WriteLine("Application not found");
-				return UnprocessableEntity();
-			}
-			if(mod.parent != app){
-				Console.WriteLine("Application is not the modules parent");
-				return UnprocessableEntity();
+			//check if application is the modules parent;
+			_context.Entry(mod).Reference(m => m.parent).Load();
+
+			if(mod.parent?.name != application){
+				return NotFound("The application provided isnt the modules parent. Did you meant to say: "+mod.parent?.name+"?");
 			}
 
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == mod.id)){
-				return Conflict();
+			if(_context.Modules.Any(a => a.name == moduleDTO.name)){
+				return Conflict("A module with this name already exists");
 			}
 
 			
@@ -132,22 +128,13 @@ namespace somiod.Controllers{
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Delete(string application, string name ){
-			
-			//check if application is the modules parent
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if(app == null){
-				Console.WriteLine("Application not found");
-				return UnprocessableEntity();
-				
-			}
 			var mod = _context.Modules.SingleOrDefault(a => a.name == name);
 			if(mod == null){
-				return NotFound();
+				return NotFound("No such module found");
 			}
-			
-			if(mod.parent != app){
-				Console.WriteLine("Application is not the modules parent");
-				return NotFound();
+			_context.Entry(mod).Reference(m => m.parent).Load();
+			if(mod.parent?.name != application){
+				return NotFound("The application provided isnt the modules parent. Did you meant to say: "+mod.parent?.name+"?");
 			}
 			
 			_context.Modules.Remove(mod);

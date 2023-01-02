@@ -24,6 +24,7 @@ namespace somiod.Controllers{
 			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
 			return Ok(applications);
 		}
+		
 		//Get application by id
 		[HttpGet("{id:int}")]
 		[Produces("application/xml")]
@@ -31,7 +32,7 @@ namespace somiod.Controllers{
 
 			var application = _context.Applications.Find(id);
 			if (application == null){
-				return NotFound();
+				return NotFound("No such application found");
 			}
 			return Ok(new ApplicationDTO(application));
 		}
@@ -41,12 +42,12 @@ namespace somiod.Controllers{
 		[Consumes("application/xml")]
 		public IActionResult Post([FromBody]ApplicationDTO application){
 			if(!preFlight(application.res_type)){
-				return UnprocessableEntity();
+				return UnprocessableEntity("Invalid resource type");
 			}
 			var app=application.fromDTO();
 			//check if application already exists
 			if(_context.Applications.Any(a => a.name == app.name || a.id == app.id)){
-				return Conflict();
+				return Conflict("Application name already exists or the id is already in use");
 			}
 	
 
@@ -61,15 +62,15 @@ namespace somiod.Controllers{
 		public IActionResult Put(string name,[FromBody]ApplicationDTO application){
 			if(!preFlight(application.res_type)){
 				//Find a more apropriate code for this
-				return UnprocessableEntity();
+				return UnprocessableEntity("Invalid resource type");
 			}
 			var app = _context.Applications.SingleOrDefault(a => a.name == name);
 			if(app == null){
-				return NotFound();
+				return NotFound("No such application found");
 			}
 			//check if application with name already exists
-			if(_context.Applications.Any(a => a.name == application.name || a.id == app.id)){
-				return Conflict();
+			if(_context.Applications.Any(a => a.name == application.name)){
+				return Conflict("Application name already exists");
 			}
 			// NO id changes
 			app.name = application.name;
@@ -87,9 +88,9 @@ namespace somiod.Controllers{
 		public IActionResult Delete(string name ){
 			
 			var application = _context.Applications.SingleOrDefault(a => a.name == name);
-			if(application == null)
-				return NotFound();
-
+			if(application == null){
+				return NotFound("No such application found");
+			}
 			
 			_context.Applications.Remove(application);
 			_context.SaveChanges();

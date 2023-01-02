@@ -27,23 +27,23 @@ namespace somiod.Controllers{
 		public IActionResult Post([FromRoute]string application, [FromRoute]string module, [FromBody]DataDTO dataDTO){
 			if(!preFlight(dataDTO.res_type)){
 				//Find a more apropriate code for this
-				return UnprocessableEntity();
+				return UnprocessableEntity("Invalid resource type");
 			}
 			//check if theres no conflicts with id
 			var data_= _context.Data.SingleOrDefault(d => d.id == dataDTO.id);
 			if(data_ != null){
-				return Conflict();
+				return Conflict("Data id is already in use");
 			}
 
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
 			
 			if(mod == null){
-				return UnprocessableEntity();
+				return NotFound("Module not found");
 			}
 			//load parent
 			_context.Entry(mod).Reference(m => m.parent).Load();
 			if(mod.parent?.name != application){	
-				return UnprocessableEntity();
+				return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
 			}
 			Data data = dataDTO.fromDTO();
 			data.parent=mod;
@@ -59,7 +59,11 @@ namespace somiod.Controllers{
 					//todo: if count < 0 something is wrong
 					if(item.Count > 0){
 						//todo: send xml in message
+
+						//this is intentional the server neither awaits nor cares about the result of the async call
+						#pragma warning disable CS4014 
 						Helper.PublishAsync(item.Endpoint, module, dataDTO);
+						#pragma warning restore CS4014
 					}
 				}
 			} else {
@@ -73,18 +77,18 @@ namespace somiod.Controllers{
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){
 			var data = _context.Data.Find(id);
 			if(data == null){
-				return NotFound();
+				return NotFound("No such Data not found");
 			}
 
 
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
 			if(mod == null){
-				return UnprocessableEntity();
+				return NotFound("Module not found");
 			}
 			//load parent
 			_context.Entry(mod).Reference(m => m.parent).Load();
 			if(mod.parent?.name != application){
-				return UnprocessableEntity();
+				return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
 			}
 			
 			_context.Remove(data);
