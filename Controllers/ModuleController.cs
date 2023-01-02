@@ -44,10 +44,10 @@ namespace somiod.Controllers{
 			return Ok(new ModuleDTO(mod));
 		}
 		//get module 
-		[HttpGet("{application}/[controller]/{id:int}")]
+		[HttpGet("{application}/[controller]/{name}")]
 		[Produces("application/xml")]
-		public IActionResult GetSinglet([FromRoute]string application, [FromRoute]int id){
-			var mod = _context.Modules.Find(id);
+		public IActionResult GetSinglet([FromRoute]string application, [FromRoute]string name){
+			var mod = _context.Modules.SingleOrDefault(m => m.name == name);
 			if (mod == null){
 				return NotFound();
 			}
