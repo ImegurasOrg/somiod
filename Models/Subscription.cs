@@ -10,10 +10,10 @@ namespace somiod.Models{
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 		
-		[NotMapped]
+		/*[NotMapped]
 		[DefaultValue("subscription")]
 		public string res_type { get; set; }
-
+		*/
 
         [Required]
 		[DefaultValue("SampleSubscription")]
@@ -40,7 +40,7 @@ namespace somiod.Models{
 			this.name = name;
 			this.@event = @event;
 			this.endpoint = endpoint;
-			this.res_type= Structures.res_type_str[(int)Structures.res_type.subscription];
+			//this.res_type= Structures.res_type_str[(int)Structures.res_type.subscription];
 		}
 		//Blank constructor
 		public Subscription():this("SampleSubscription"+DateTime.Now.ToString("yyyyMMddHHmmss"), "creation", "mqtt://13.38.228.158:1883"){}

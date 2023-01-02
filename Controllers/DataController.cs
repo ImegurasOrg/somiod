@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml.Serialization;
@@ -90,13 +91,17 @@ namespace somiod.Controllers{
 
 	public class DataDTO{
 
-		public int? id { get; set; }
-
+		
+		[Required]
+		[DefaultValue("SampleData")]
+		[MaxLength(50)]
+		public string content { get; set; }
+		
 		[DefaultValue("data")]
 		public string res_type { get; set; }
-
-		[DefaultValue("SampleData")]
-        public string content { get; set; }
+		
+		public int? id { get; set; }
+		
 
 		private DateTime? creation_dt { get; set; }
 

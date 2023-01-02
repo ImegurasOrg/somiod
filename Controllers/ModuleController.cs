@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
@@ -136,11 +137,15 @@ namespace somiod.Controllers{
 
 	}
 	public class ModuleDTO{
-		public int? id { get; set; }
-		[DefaultValue("SampleModule")]
+		
+        [Required]
+		[MaxLength(20)]
+		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Module names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
 		public string name { get; set; }
 		[DefaultValue("module")]
 		public string res_type { get; set; }
+
+		public int? id { get; set; }
 
 		public DateTime? creation_dt { get; set; }
 

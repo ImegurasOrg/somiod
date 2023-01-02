@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
@@ -98,11 +99,14 @@ namespace somiod.Controllers{
 
 	}
 	public class ApplicationDTO{
-		public int? id { get; set; }
+		[StringLength(20)]
 		[DefaultValue("SampleApplication")]
+		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Applications names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
 		public string name { get; set; }
 		[DefaultValue("application")]
 		public string res_type { get; set; }
+		
+		public int? id { get; set; }
 
 		public DateTime? creation_dt { get; set; }
 

@@ -76,27 +76,28 @@ namespace somiod.Controllers{
 
 	public class SubscriptionDTO{
 
-		public int? id { get; set; }
-
-		[DefaultValue("subscription")]
-		public string res_type { get; set; }
-
-
-	
+		
+		[Required]
 		[DefaultValue("SampleSubscription")]
+		[MaxLength(50)]
         public string name { get; set; }
 
-		
+		[Required]
 		[DefaultValue("creation")]
-		//value of @event is either "creation" or "deletion"
 		[RegularExpression("creation|deletion")]
 		public string @event {get;set;}
 		//TODO: Maybe regex?
 		//regular expression for mqtt
 		//mqtt://[a-zA-Z0-9]+:[0-9]+
-		[DefaultValue("mqtt://13.38.228.158:1883")]
+		
+		[Required]
 		[RegularExpression(@"mqtt://[a-zA-Z0-9]+:[0-9]+|mqtt:\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$", ErrorMessage = "Invalid endpoint, valid endpoints are mqtt://domain:port or mqtt://ipv4:port")]
 		public string endpoint {get; set;}
+		
+		[DefaultValue("subscription")]
+		public string res_type { get; set; }
+
+		public int? id { get; set; }
 
 		private DateTime? creation_dt { get; set; }
 
