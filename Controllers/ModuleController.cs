@@ -57,7 +57,7 @@ namespace somiod.Controllers{
 				return NotFound();
 			}
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id != app.id)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == app.id)){
 				return Conflict();
 			}
 			var mod=moduleDTO.fromDTO();
@@ -92,7 +92,7 @@ namespace somiod.Controllers{
 			}
 
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id != mod.id)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == mod.id)){
 				return Conflict();
 			}
 
@@ -155,7 +155,7 @@ namespace somiod.Controllers{
 			this.creation_dt = DateTime.Now;
 		} 
 
-		public ModuleDTO(string content, int id):this(content){
+		public ModuleDTO(string name, int id):this(name){
 			this.id = id;
 		}
 		public ModuleDTO(Module mod):this(mod.name, mod.id){
@@ -171,6 +171,23 @@ namespace somiod.Controllers{
 			}
 			return new Module(this.name, this.id.Value, this.creation_dt.Value);
 		}
+	}
+	public class ModuleWithDataDTO:ModuleDTO{
+		public ICollection<DataDTO> data { get; set; }
+		
+		public ModuleWithDataDTO(string name):base(name){
+			this.data = new List<DataDTO>();
+		}
+		public ModuleWithDataDTO(string name, int id):base(name, id){
+			this.data = new List<DataDTO>();
+		}
+		public ModuleWithDataDTO(Module mod):base(mod){
+			this.data = new List<DataDTO>();
+		}
+		public ModuleWithDataDTO():base(){
+			this.data = new List<DataDTO>();
+		}
+
 	}
 
 	
