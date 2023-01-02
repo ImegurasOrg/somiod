@@ -29,6 +29,12 @@ namespace somiod.Controllers{
 				//Find a more apropriate code for this
 				return UnprocessableEntity();
 			}
+			//check if theres no conflicts with id
+			var data_= _context.Data.SingleOrDefault(d => d.id == dataDTO.id);
+			if(data_ != null){
+				return Conflict();
+			}
+
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
 			
 			if(mod == null){

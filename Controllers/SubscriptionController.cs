@@ -31,11 +31,17 @@ namespace somiod.Controllers{
 				//Find a more apropriate code for this
 				return UnprocessableEntity();
 			}
+			//check if theres no conflicts with id
+			var sub= _context.Subscriptions.SingleOrDefault(s => s.id == subscriptionDTO.id);
+			if(sub != null){
+				return Conflict();
+			}
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
-			
 			if(mod == null){
 				return UnprocessableEntity();
 			}
+
+
 			//load parent
 			_context.Entry(mod).Reference(m => m.parent).Load();
 			if(mod.parent?.name != application){

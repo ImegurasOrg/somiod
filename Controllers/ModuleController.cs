@@ -57,7 +57,7 @@ namespace somiod.Controllers{
 				return NotFound();
 			}
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id != app.id)){
 				return Conflict();
 			}
 			var mod=moduleDTO.fromDTO();
@@ -92,7 +92,7 @@ namespace somiod.Controllers{
 			}
 
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id != mod.id)){
 				return Conflict();
 			}
 

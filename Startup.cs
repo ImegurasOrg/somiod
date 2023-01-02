@@ -70,19 +70,9 @@ namespace somiod{
 								var outOfVarnames= await reader.ReadToEndAsync(); 
 								Match match2 = Regex.Match(outOfVarnames, @"<res_type>subscription<\/res_type>");
 								if(match2.Success){
-									//Console.WriteLine("Redirecting to subscription controller");
-									//redirect to subscription controller
 									
-									/*TODO REMOVE THIS*/
-									Console.WriteLine("Tudo: "+context.Request.Path+"|");
-									Console.WriteLine("0"+match.Groups[1].Value+"|");
-									Console.WriteLine("1"+match.Groups[2].Value+"|");
-									Console.WriteLine("2"+match.Groups[3].Value+"|");
 									context.Request.Path= match.Groups[1].Value+"/Subscription/"+match.Groups[2].Value+"/"+match.Groups[3].Value;
-									Console.WriteLine(context.Request.Path);
 									
-									
-
 								}
 								//rewind the body stream so the controller can read it
 								context.Request.Body.Position = 0;

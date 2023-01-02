@@ -45,7 +45,7 @@ namespace somiod.Controllers{
 			}
 			var app=application.fromDTO();
 			//check if application already exists
-			if(_context.Applications.Any(a => a.name == app.name)){
+			if(_context.Applications.Any(a => a.name == app.name || a.id != app.id)){
 				return Conflict();
 			}
 	
@@ -68,7 +68,7 @@ namespace somiod.Controllers{
 				return NotFound();
 			}
 			//check if application with name already exists
-			if(_context.Applications.Any(a => a.name == application.name)){
+			if(_context.Applications.Any(a => a.name == application.name || a.id != app.id)){
 				return Conflict();
 			}
 			// NO id changes
