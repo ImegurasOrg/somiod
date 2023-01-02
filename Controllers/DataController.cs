@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml.Serialization;
@@ -28,6 +29,12 @@ namespace somiod.Controllers{
 				//Find a more apropriate code for this
 				return UnprocessableEntity();
 			}
+			//check if theres no conflicts with id
+			var data_= _context.Data.SingleOrDefault(d => d.id == dataDTO.id);
+			if(data_ != null){
+				return Conflict();
+			}
+
 			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
 			
 			if(mod == null){
@@ -61,7 +68,7 @@ namespace somiod.Controllers{
 			return Ok(dataDTO);
 		}
 		//HAS TO BE ID DUE TO NOT BEING UNIQUE
-		[HttpDelete("{application}/{module}/{id}")]
+		[HttpDelete("{application}/{module}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){
 			var data = _context.Data.Find(id);
@@ -90,13 +97,17 @@ namespace somiod.Controllers{
 
 	public class DataDTO{
 
-		public int? id { get; set; }
-
+		
+		[Required]
+		[DefaultValue("SampleData")]
+		[MaxLength(50)]
+		public string content { get; set; }
+		
 		[DefaultValue("data")]
 		public string res_type { get; set; }
-
-		[DefaultValue("SampleData")]
-        public string content { get; set; }
+		
+		public int? id { get; set; }
+		
 
 		private DateTime? creation_dt { get; set; }
 

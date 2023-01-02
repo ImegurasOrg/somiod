@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
@@ -27,7 +28,7 @@ namespace somiod.Controllers{
 				return Ok(modules);
 		}
 		//Get module by id
-		[HttpGet("{application}/{id}")]
+		[HttpGet("{application}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle([FromRoute]string application, [FromRoute]int id){
 			var mod = _context.Modules.Find(id);
@@ -56,7 +57,7 @@ namespace somiod.Controllers{
 				return NotFound();
 			}
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id != app.id)){
 				return Conflict();
 			}
 			var mod=moduleDTO.fromDTO();
@@ -91,7 +92,7 @@ namespace somiod.Controllers{
 			}
 
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id != mod.id)){
 				return Conflict();
 			}
 
@@ -136,11 +137,15 @@ namespace somiod.Controllers{
 
 	}
 	public class ModuleDTO{
-		public int? id { get; set; }
-		[DefaultValue("SampleModule")]
+		
+        [Required]
+		[MaxLength(20)]
+		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Module names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
 		public string name { get; set; }
 		[DefaultValue("module")]
 		public string res_type { get; set; }
+
+		public int? id { get; set; }
 
 		public DateTime? creation_dt { get; set; }
 

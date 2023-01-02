@@ -10,13 +10,14 @@ namespace somiod.Models{
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 		
-		[NotMapped]
+		/*[NotMapped]
 		[DefaultValue("subscription")]
 		public string res_type { get; set; }
-
+		*/
 
         [Required]
 		[DefaultValue("SampleSubscription")]
+		[MaxLength(50)]
         public string name { get; set; }
 
 		//event is reserved... the @ tells the compiler that its the actual variable name
@@ -27,6 +28,7 @@ namespace somiod.Models{
 		public string @event {get;set;}
 		//TODO: Maybe regex?
 		[Required]
+		[RegularExpression(@"mqtt://[a-zA-Z0-9]+:[0-9]+|mqtt:\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$", ErrorMessage = "Invalid endpoint, valid endpoints are mqtt://domain:port or mqtt://ipv4:port")]
         public string endpoint {get; set;}
 		public DateTime? creation_dt { get; set; }
 		
@@ -38,7 +40,7 @@ namespace somiod.Models{
 			this.name = name;
 			this.@event = @event;
 			this.endpoint = endpoint;
-			this.res_type= Structures.res_type_str[(int)Structures.res_type.subscription];
+			//this.res_type= Structures.res_type_str[(int)Structures.res_type.subscription];
 		}
 		//Blank constructor
 		public Subscription():this("SampleSubscription"+DateTime.Now.ToString("yyyyMMddHHmmss"), "creation", "mqtt://13.38.228.158:1883"){}

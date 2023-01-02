@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
@@ -20,7 +21,7 @@ namespace somiod.Controllers{
 		[Produces("application/xml")]
 		public IActionResult Get(){
 			//Cast to DTO
-			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.ToList().Select(a => new ApplicationDTO(a)));
+			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
 			return Ok(applications);
 		}
 		//Get application by id
@@ -44,7 +45,7 @@ namespace somiod.Controllers{
 			}
 			var app=application.fromDTO();
 			//check if application already exists
-			if(_context.Applications.Any(a => a.name == app.name)){
+			if(_context.Applications.Any(a => a.name == app.name || a.id != app.id)){
 				return Conflict();
 			}
 	
@@ -67,7 +68,7 @@ namespace somiod.Controllers{
 				return NotFound();
 			}
 			//check if application with name already exists
-			if(_context.Applications.Any(a => a.name == application.name)){
+			if(_context.Applications.Any(a => a.name == application.name || a.id != app.id)){
 				return Conflict();
 			}
 			// NO id changes
@@ -98,11 +99,14 @@ namespace somiod.Controllers{
 
 	}
 	public class ApplicationDTO{
-		public int? id { get; set; }
+		[StringLength(20)]
 		[DefaultValue("SampleApplication")]
+		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Applications names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
 		public string name { get; set; }
 		[DefaultValue("application")]
 		public string res_type { get; set; }
+		
+		public int? id { get; set; }
 
 		public DateTime? creation_dt { get; set; }
 

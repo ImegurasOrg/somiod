@@ -11,6 +11,8 @@ namespace somiod.Models
         public int id { get; set; }
 
         [Required]
+		[MaxLength(20)]
+		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Module names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
         public string name { get; set; }
 
         [Required]
