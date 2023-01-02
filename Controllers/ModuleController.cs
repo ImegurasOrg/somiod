@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,26 @@ namespace somiod.Controllers{
 				return UnprocessableEntity();
 			}
 			return Ok(new ModuleDTO(mod));
+		}
+		//get module 
+		[HttpGet("{application}/[controller]/{id:int}")]
+		[Produces("application/xml")]
+		public IActionResult GetSinglet([FromRoute]string application, [FromRoute]int id){
+			var mod = _context.Modules.Find(id);
+			if (mod == null){
+				return NotFound();
+			}
+
+			var app = _context.Applications.SingleOrDefault(a => a.name == application);
+			if (app == null){
+				return UnprocessableEntity();
+			}
+			//fill 
+			var k =new ModuleWithDataDTO(mod);
+			//Load collection
+			_context.Entry(mod).Collection(m => m.datas).Load();
+			k.dataList = _context.Data.Where(d => d.parent == mod).Select(d => new DataDTO(d)).ToList();
+			return Ok(k);
 		}
 		//Create module
 		[HttpPost("{application}")]
@@ -173,19 +194,20 @@ namespace somiod.Controllers{
 		}
 	}
 	public class ModuleWithDataDTO:ModuleDTO{
-		public ICollection<DataDTO> data { get; set; }
+		
+		public List<DataDTO> dataList { get; set; }
 		
 		public ModuleWithDataDTO(string name):base(name){
-			this.data = new List<DataDTO>();
+			this.dataList = new List<DataDTO>();
 		}
 		public ModuleWithDataDTO(string name, int id):base(name, id){
-			this.data = new List<DataDTO>();
+			this.dataList = new List<DataDTO>();
 		}
 		public ModuleWithDataDTO(Module mod):base(mod){
-			this.data = new List<DataDTO>();
+			this.dataList = new List<DataDTO>();
 		}
 		public ModuleWithDataDTO():base(){
-			this.data = new List<DataDTO>();
+			this.dataList = new List<DataDTO>();
 		}
 
 	}
