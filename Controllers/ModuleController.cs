@@ -85,7 +85,7 @@ namespace somiod.Controllers{
 			}
 
 		}
-		[SwaggerOperation(Summary = "Creates a new module", Description = "Returns the provided ModuleDTO object" )]
+		[SwaggerOperation(Summary = "Creates a new module", Description = "Returns the resulting ModuleDTO object" )]
 		//Create module
 		[HttpPost("{application}")]
 		[Produces("application/xml")]
@@ -118,7 +118,7 @@ namespace somiod.Controllers{
 			}
 
 		}
-		[SwaggerOperation(Summary = "Updates a module name", Description = "Returns the provided ModuleDTO object" )]
+		[SwaggerOperation(Summary = "Updates a module name", Description = "Returns the resulting ModuleDTO object" )]
 		//Update application
 		[HttpPut("{application}/{name}")]
 		[Produces("application/xml")]
@@ -159,7 +159,7 @@ namespace somiod.Controllers{
 				return BadRequest(e.Message);
 			}
 		}
-		[SwaggerOperation(Summary = "Deletes a module", Description = "Returns the provided ModuleDTO object, will also remove any children associated with this module(cascade)" )]
+		[SwaggerOperation(Summary = "Deletes a module", Description = "Returns the deleted ModuleDTO object, will also remove any children associated with this module(cascade)" )]
 		//Delete application
 		[HttpDelete("{application}/{name}")]
 		[Produces("application/xml")]

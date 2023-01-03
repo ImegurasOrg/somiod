@@ -22,7 +22,7 @@ namespace somiod.Controllers{
             res_type = Structures.res_type.data;
 		}
         //Through the REST API, it must be possible to create, modify, list, and delete each available resource. Data resources (records) and subscription resources only allow creation and deletion.
-		[SwaggerOperation(Summary = "Creates a new data resource", Description = "Returns the DataDTO provided, when launched will also message to the module channel subscriber")]
+		[SwaggerOperation(Summary = "Creates a new data resource", Description = "Returns the resulting DataDTO, when launched will also message to the module channel subscriber")]
 		[HttpPost("{application}/{module}")]
 		[Consumes("application/xml")]
 		[Produces("application/xml")]
@@ -79,7 +79,7 @@ namespace somiod.Controllers{
 			}
 
 		}
-		[SwaggerOperation(Summary = "Deletes a certain data resource", Description = "Returns the deleted DataDTO")]
+		[SwaggerOperation(Summary = "Deletes a certain data resource", Description = "Returns the resulting DataDTO")]
 		[HttpDelete("{application}/{module}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){

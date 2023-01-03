@@ -48,7 +48,7 @@ namespace somiod.Controllers{
 				return BadRequest(e.Message);
 			}
 		}
-		[SwaggerOperation(Summary = "Creates an application and posts it on the database", Description = "Returns the ApplicationDTO provided" )]
+		[SwaggerOperation(Summary = "Creates an application and posts it on the database", Description = "Returns the resulting ApplicationDTO" )]
 		[HttpPost]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
@@ -72,7 +72,7 @@ namespace somiod.Controllers{
 				return BadRequest(e.Message);
 			}
 		}
-		[SwaggerOperation(Summary = "Updates an application name on the database", Description = "Returns the ApplicationDTO provided, It wont update id nor creation_dt" )]
+		[SwaggerOperation(Summary = "Updates an application name on the database", Description = "Returns the resulting ApplicationDTO, It wont update id nor creation_dt" )]
 		[HttpPut("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
@@ -104,7 +104,7 @@ namespace somiod.Controllers{
 			}
 
 		}
-		[SwaggerOperation(Summary = "Deletes an application from the database", Description = "Returns the ApplicationDTO provided, Will also remove any children associated(cascade)" )]
+		[SwaggerOperation(Summary = "Deletes an application from the database", Description = "Returns the resulting ApplicationDTO, Will also remove any children associated(cascade)" )]
 		[HttpDelete("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
