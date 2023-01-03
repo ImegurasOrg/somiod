@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using somiod.DAL;
 
@@ -10,9 +11,10 @@ using somiod.DAL;
 namespace somiod.Migrations
 {
     [DbContext(typeof(InheritanceMappingContext))]
-    partial class InheritanceMappingContextModelSnapshot : ModelSnapshot
+    [Migration("20230103232701_FINAL")]
+    partial class FINAL
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

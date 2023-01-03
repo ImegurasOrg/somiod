@@ -22,9 +22,9 @@ namespace somiod.Models{
 
 		//event is reserved... the @ tells the compiler that its the actual variable name
 		[Required]
-		[DefaultValue("creation")]
-		//value of @event is either "creation" or "deletion"
-		[RegularExpression("creation|deletion")]
+		[DefaultValue("created")]
+		//value of @event is either "created" or "deleted"
+		[RegularExpression("created|deleted")]
 		public string @event {get;set;}
 		//TODO: Maybe regex?
 		[Required]
@@ -43,7 +43,7 @@ namespace somiod.Models{
 			//this.res_type= Structures.res_type_str[(int)Structures.res_type.subscription];
 		}
 		//Blank constructor
-		public Subscription():this("SampleSubscription"+DateTime.Now.ToString("yyyyMMddHHmmss"), "creation", "mqtt://13.38.228.158:1883"){}
+		public Subscription():this("SampleSubscription"+DateTime.Now.ToString("yyyyMMddHHmmss"), "created", "mqtt://13.38.228.158:1883"){}
 		public Subscription(string name, string @event, string endpoint, int id, DateTime creation_dt):this(name, @event, endpoint){
 			this.id=id;
 			this.creation_dt=creation_dt;

@@ -102,8 +102,8 @@ namespace somiod.Controllers{
         public string name { get; set; }
 
 		[Required]
-		[DefaultValue("creation")]
-		[RegularExpression("creation|deletion")]
+		[DefaultValue("created")]
+		[RegularExpression("created|deleted")]
 		public string @event {get;set;}
 		//TODO: Maybe regex?
 		//regular expression for mqtt
@@ -136,7 +136,7 @@ namespace somiod.Controllers{
 		public SubscriptionDTO(Subscription sub):this(sub.name,sub.@event, sub.endpoint, sub.id){
 			this.creation_dt = sub.creation_dt;
 		}
-		public SubscriptionDTO():this("SampleSubscription"+DateTime.Now.ToString("yyyyMMddHHmmss"), "creation", "mqtt://13.38.228.158:1883"){}
+		public SubscriptionDTO():this("SampleSubscription"+DateTime.Now.ToString("yyyyMMddHHmmss"), "created", "mqtt://13.38.228.158:1883"){}
 
 		public Subscription fromDTO(){
 			if(this.id == null){
