@@ -25,75 +25,86 @@ namespace somiod.Controllers{
 		[Consumes("application/xml")]
 		[Produces("application/xml")]
 		public IActionResult Post([FromRoute]string application, [FromRoute]string module, [FromBody]DataDTO dataDTO){
-			if(!preFlight(dataDTO.res_type)){
-				//Find a more apropriate code for this
-				return UnprocessableEntity("Invalid resource type");
-			}
-			//check if theres no conflicts with id
-			var data_= _context.Data.SingleOrDefault(d => d.id == dataDTO.id);
-			if(data_ != null){
-				return Conflict("Data id is already in use");
-			}
-
-			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
-			
-			if(mod == null){
-				return NotFound("Module not found");
-			}
-			//load parent
-			_context.Entry(mod).Reference(m => m.parent).Load();
-			if(mod.parent?.name != application){	
-				return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
-			}
-			Data data = dataDTO.fromDTO();
-			data.parent=mod;
-			_context.Add(data);
-			_context.SaveChanges();
-			//broker vem das subscriptions em que tenho o module como parent e event created but not deleted? , mod = topic e data = message
-			//query get subscriptions where module = mod
-			//subctract from count created - count deleted
-			//if count > 0 then send message(topic = mod, message = data)
-			List<OmeuTipo>? result = Helper.CheckSubscritions(module, _context);
-			if(result != null){
-				foreach(var item in result){
-					//todo: if count < 0 something is wrong
-					if(item.Count > 0){
-						//todo: send xml in message
-
-						//this is intentional the server neither awaits nor cares about the result of the async call
-						#pragma warning disable CS4014 
-						Helper.PublishAsync(item.Endpoint, module, dataDTO);
-						#pragma warning restore CS4014
-					}
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				if(!preFlight(dataDTO.res_type)){
+					//Find a more apropriate code for this
+					return UnprocessableEntity("Invalid resource type");
 				}
-			} else {
-				Console.WriteLine("Cannot send notification");	
+				//check if theres no conflicts with id
+				var data_= _context.Data.SingleOrDefault(d => d.id == dataDTO.id);
+				if(data_ != null){
+					return Conflict("Data id is already in use");
+				}
+
+				var mod = _context.Modules.SingleOrDefault(m => m.name == module);
+				
+				if(mod == null){
+					return NotFound("Module not found");
+				}
+				//load parent
+				_context.Entry(mod).Reference(m => m.parent).Load();
+				if(mod.parent?.name != application){	
+					return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
+				}
+				Data data = dataDTO.fromDTO();
+				data.parent=mod;
+				_context.Add(data);
+				_context.SaveChanges();
+				//broker vem das subscriptions em que tenho o module como parent e event created but not deleted? , mod = topic e data = message
+				//query get subscriptions where module = mod
+				//subctract from count created - count deleted
+				//if count > 0 then send message(topic = mod, message = data)
+				List<OmeuTipo>? result = Helper.CheckSubscritions(module, _context);
+				if(result != null){
+					foreach(var item in result){
+						//todo: if count < 0 something is wrong
+						if(item.Count > 0){
+							//todo: send xml in message
+
+							//this is intentional the server neither awaits nor cares about the result of the async call
+							#pragma warning disable CS4014 
+							Helper.PublishAsync(item.Endpoint, module, dataDTO);
+							#pragma warning restore CS4014
+						}
+					}
+				} else {
+					Console.WriteLine("Cannot send notification");	
+				}
+				return Ok(dataDTO);
+			} catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			return Ok(dataDTO);
+
 		}
 		//HAS TO BE ID DUE TO NOT BEING UNIQUE
 		[HttpDelete("{application}/{module}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]int id){
-			var data = _context.Data.Find(id);
-			if(data == null){
-				return NotFound("No such Data not found");
-			}
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var data = _context.Data.Find(id);
+				if(data == null){
+					return NotFound("No such Data not found");
+				}
 
 
-			var mod = _context.Modules.SingleOrDefault(m => m.name == module);
-			if(mod == null){
-				return NotFound("Module not found");
+				var mod = _context.Modules.SingleOrDefault(m => m.name == module);
+				if(mod == null){
+					return NotFound("Module not found");
+				}
+				//load parent
+				_context.Entry(mod).Reference(m => m.parent).Load();
+				if(mod.parent?.name != application){
+					return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
+				}
+				
+				_context.Remove(data);
+				_context.SaveChanges();
+				return Ok(new DataDTO(data));
+			} catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			//load parent
-			_context.Entry(mod).Reference(m => m.parent).Load();
-			if(mod.parent?.name != application){
-				return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
-			}
-			
-			_context.Remove(data);
-			_context.SaveChanges();
-			return Ok(new DataDTO(data));
 		}
 		
 		
