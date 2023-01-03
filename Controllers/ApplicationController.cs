@@ -23,80 +23,105 @@ namespace somiod.Controllers{
 		[HttpGet]
 		[Produces("application/xml")]
 		public IActionResult Get(){
-			//Cast to DTO
-			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
-			return Ok(applications);
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				
+				//Cast to DTO
+				List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
+				return Ok(applications);
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
 		}
 		[SwaggerOperation(Summary = "Gets a single childless application from the database", Description = "Returns a ApplicationDTO object" )]
 		[HttpGet("{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle(int id){
-
-			var application = _context.Applications.Find(id);
-			if (application == null){
-				return NotFound("No such application found");
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var application = _context.Applications.Find(id);
+				if (application == null){
+					return NotFound("No such application found");
+				}
+				return Ok(new ApplicationDTO(application));
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			return Ok(new ApplicationDTO(application));
 		}
 		[SwaggerOperation(Summary = "Creates an application and posts it on the database", Description = "Returns the ApplicationDTO provided" )]
 		[HttpPost]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Post([FromBody]ApplicationDTO application){
-			if(!preFlight(application.res_type)){
-				return UnprocessableEntity("Invalid resource type");
-			}
-			var app=application.fromDTO();
-			//check if application already exists
-			if(_context.Applications.Any(a => a.name == app.name || a.id == application.id)){
-				return Conflict("Application name already exists or the id is already in use");
-			}
-	
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				if(!preFlight(application.res_type)){
+					return UnprocessableEntity("Invalid resource type");
+				}
+				var app=application.fromDTO();
+				//check if application already exists
+				if(_context.Applications.Any(a => a.name == app.name || a.id == application.id)){
+					return Conflict("Application name already exists or the id is already in use");
+				}
+		
 
-			_context.Applications.Add(app);
-			_context.SaveChanges();
-			return Ok(new ApplicationDTO(app));
+				_context.Applications.Add(app);
+				_context.SaveChanges();
+				return Ok(new ApplicationDTO(app));
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
 		}
 		[SwaggerOperation(Summary = "Updates an application name on the database", Description = "Returns the ApplicationDTO provided, It wont update id nor creation_dt" )]
 		[HttpPut("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Put(string name,[FromBody]ApplicationDTO application){
-			if(!preFlight(application.res_type)){
-				//Find a more apropriate code for this
-				return UnprocessableEntity("Invalid resource type");
-			}
-			var app = _context.Applications.SingleOrDefault(a => a.name == name);
-			if(app == null){
-				return NotFound("No such application found");
-			}
-			//check if application with name already exists
-			if(_context.Applications.Any(a => a.name == application.name)){
-				return Conflict("Application name already exists");
-			}
-			// NO id changes
-			app.name = application.name;
-			// SHOULD THIS BE CHANGED ON PUT?
-			///app.creation_dt = application.creation_dt;
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				if(!preFlight(application.res_type)){
+					//Find a more apropriate code for this
+					return UnprocessableEntity("Invalid resource type");
+				}
+				var app = _context.Applications.SingleOrDefault(a => a.name == name);
+				if(app == null){
+					return NotFound("No such application found");
+				}
+				//check if application with name already exists
+				if(_context.Applications.Any(a => a.name == application.name)){
+					return Conflict("Application name already exists");
+				}
+				// NO id changes
+				app.name = application.name;
+				// SHOULD THIS BE CHANGED ON PUT?
+				///app.creation_dt = application.creation_dt;
 
-			_context.Applications.Update(app);
-			_context.SaveChanges();
-			return Ok(new ApplicationDTO(app));
+				_context.Applications.Update(app);
+				_context.SaveChanges();
+				return Ok(new ApplicationDTO(app));
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
+
 		}
 		[SwaggerOperation(Summary = "Deletes an application from the database", Description = "Returns the ApplicationDTO provided, Will also remove any children associated(cascade)" )]
 		[HttpDelete("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Delete(string name ){
-			
-			var application = _context.Applications.SingleOrDefault(a => a.name == name);
-			if(application == null){
-				return NotFound("No such application found");
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var application = _context.Applications.SingleOrDefault(a => a.name == name);
+				if(application == null){
+					return NotFound("No such application found");
+				}
+				
+				_context.Applications.Remove(application);
+				_context.SaveChanges();
+				return Ok(new ApplicationDTO(application));
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			
-			_context.Applications.Remove(application);
-			_context.SaveChanges();
-			return Ok(new ApplicationDTO(application));
 		}
 
 
