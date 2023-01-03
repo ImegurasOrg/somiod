@@ -22,7 +22,7 @@ namespace somiod.Controllers{
 			_context = context;
             res_type = Structures.res_type.subscription;
 		}
-		[SwaggerOperation(Summary = "Creates a new subscription resource", Description = "Returns provided SubscriptionDTO, used by clients to warn the server of their subscription or unsubscrition of a certain mqtt endpoint" )]
+		[SwaggerOperation(Summary = "Creates a new subscription resource", Description = "When route /api/somiod/{application}/{module} contains subscription on res_type will redirect to this route(swagger cant detect conventional routing or middleware redirection), Returns provided SubscriptionDTO, used by clients to warn the server of their subscription or unsubscribing of a certain mqtt endpoint" )]
 		[HttpPost("[controller]/{application}/{module}")]
 		[Consumes("application/xml")]
 		[Produces("application/xml")]
