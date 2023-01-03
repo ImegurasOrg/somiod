@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.OpenApi.Models;
 using somiod.Controllers;
 using somiod.DAL;
 using somiod.utils;
@@ -22,7 +23,11 @@ namespace somiod{
 			services.AddControllers().AddXmlSerializerFormatters();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			services.AddEndpointsApiExplorer();
-			services.AddSwaggerGen();
+			services.AddSwaggerGen(c=> {
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Somiod", Version = "v1", Description = "Somiod API is a project for the IS subject developed by João Vieira(2191191), Diogo Alpendre(2191747) and Francisco Machado(2191267)" }
+				);
+				c.EnableAnnotations();
+			});
 			
 			
 			services.AddCors(options => {
@@ -55,8 +60,9 @@ namespace somiod{
 				try{
 					//rewindable body
 					context.Request.EnableBuffering();
-
+					#pragma warning disable //the day context.Request.Path.Value is null is the day asp.net becomes obsolete
 					Match match = Regex.Match(context.Request.Path.Value, pattern);
+					#pragma warning restore
 					if(match.Success){
 						//Check if body contains <res_type>subscription</res_type>
 						//if so redirect to the subscription controller

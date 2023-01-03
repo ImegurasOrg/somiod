@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
 using somiod.utils;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace somiod.Controllers{
 	[ApiController]
@@ -15,85 +16,112 @@ namespace somiod.Controllers{
 			_context = context;
 			res_type= Structures.res_type.application;
 		}
-	
-		//Get all applications
+
+		[SwaggerOperation(Summary = "Gets all applications from the database", Description = "Returns a ArrayOfApplicationDTO object that wraps the actual dto objects" )]
+		//[ProducesResponseType(typeof(ApplicationDTO[]), 200)]
+		
 		[HttpGet]
 		[Produces("application/xml")]
 		public IActionResult Get(){
-			//Cast to DTO
-			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
-			return Ok(applications);
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				
+				//Cast to DTO
+				List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
+				return Ok(applications);
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
 		}
-		//Get application by id
+		[SwaggerOperation(Summary = "Gets a single childless application from the database", Description = "Returns a ApplicationDTO object" )]
 		[HttpGet("{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle(int id){
-
-			var application = _context.Applications.Find(id);
-			if (application == null){
-				return NotFound();
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var application = _context.Applications.Find(id);
+				if (application == null){
+					return NotFound("No such application found");
+				}
+				return Ok(new ApplicationDTO(application));
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			return Ok(new ApplicationDTO(application));
 		}
-		//Create application
+		[SwaggerOperation(Summary = "Creates an application and posts it on the database", Description = "Returns the resulting ApplicationDTO" )]
 		[HttpPost]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Post([FromBody]ApplicationDTO application){
-			if(!preFlight(application.res_type)){
-				return UnprocessableEntity();
-			}
-			var app=application.fromDTO();
-			//check if application already exists
-			if(_context.Applications.Any(a => a.name == app.name || a.id == app.id)){
-				return Conflict();
-			}
-	
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				if(!preFlight(application.res_type)){
+					return UnprocessableEntity("Invalid resource type");
+				}
+				var app=application.fromDTO();
+				//check if application already exists
+				if(_context.Applications.Any(a => a.name == app.name || a.id == application.id)){
+					return Conflict("Application name already exists or the id is already in use");
+				}
+		
 
-			_context.Applications.Add(app);
-			_context.SaveChanges();
-			return Ok(application);
+				_context.Applications.Add(app);
+				_context.SaveChanges();
+				return Ok(new ApplicationDTO(app));
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
 		}
-		//Update application
+		[SwaggerOperation(Summary = "Updates an application name on the database", Description = "Returns the resulting ApplicationDTO, It wont update id nor creation_dt" )]
 		[HttpPut("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Put(string name,[FromBody]ApplicationDTO application){
-			if(!preFlight(application.res_type)){
-				//Find a more apropriate code for this
-				return UnprocessableEntity();
-			}
-			var app = _context.Applications.SingleOrDefault(a => a.name == name);
-			if(app == null){
-				return NotFound();
-			}
-			//check if application with name already exists
-			if(_context.Applications.Any(a => a.name == application.name || a.id == app.id)){
-				return Conflict();
-			}
-			// NO id changes
-			app.name = application.name;
-			// TODO: SHOULD THIS BE CHANGED ON PUT?
-			///app.creation_dt = application.creation_dt;
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				if(!preFlight(application.res_type)){
+					//Find a more apropriate code for this
+					return UnprocessableEntity("Invalid resource type");
+				}
+				var app = _context.Applications.SingleOrDefault(a => a.name == name);
+				if(app == null){
+					return NotFound("No such application found");
+				}
+				//check if application with name already exists
+				if(_context.Applications.Any(a => a.name == application.name)){
+					return Conflict("Application name already exists");
+				}
+				// NO id changes
+				app.name = application.name;
+				// SHOULD THIS BE CHANGED ON PUT?
+				///app.creation_dt = application.creation_dt;
 
-			_context.Applications.Update(app);
-			_context.SaveChanges();
-			return Ok(new ApplicationDTO(app));
+				_context.Applications.Update(app);
+				_context.SaveChanges();
+				return Ok(new ApplicationDTO(app));
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
+
 		}
-		//Delete application
+		[SwaggerOperation(Summary = "Deletes an application from the database", Description = "Returns the resulting ApplicationDTO, Will also remove any children associated(cascade)" )]
 		[HttpDelete("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Delete(string name ){
-			
-			var application = _context.Applications.SingleOrDefault(a => a.name == name);
-			if(application == null)
-				return NotFound();
-
-			
-			_context.Applications.Remove(application);
-			_context.SaveChanges();
-			return Ok(new ApplicationDTO(application));
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var application = _context.Applications.SingleOrDefault(a => a.name == name);
+				if(application == null){
+					return NotFound("No such application found");
+				}
+				
+				_context.Applications.Remove(application);
+				_context.SaveChanges();
+				return Ok(new ApplicationDTO(application));
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
 		}
 
 

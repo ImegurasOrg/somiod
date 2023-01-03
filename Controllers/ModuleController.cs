@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
 using somiod.utils;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace somiod.Controllers{
 	[ApiController]
@@ -16,143 +17,171 @@ namespace somiod.Controllers{
 			_context = context;
 			res_type= Structures.res_type.module;
 		}
+		[SwaggerOperation(Summary = "Gets all child modules from a certain application", Description = "Returns a ArrayOfModuleDTO object that wraps the actual dto objects" )]
 		[HttpGet("{application}")]
 		[Produces("application/xml")]
 		public IActionResult Get([FromRoute]string application){
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if (app == null){
-				return UnprocessableEntity();
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var app = _context.Applications.SingleOrDefault(a => a.name == application);
+				if (app == null){
+					return NotFound("Application not found");
+				}
+				//Cast to DTO
+				List<ModuleDTO> modules = new List<ModuleDTO>(_context.Modules.Where(m => m.parent == app).ToList().Select(m => new ModuleDTO(m)));
+					//TODO oq fazer se a lista estiver vazia?
+					return Ok(modules);
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			//Cast to DTO
-			List<ModuleDTO> modules = new List<ModuleDTO>(_context.Modules.Where(m => m.parent == app).ToList().Select(m => new ModuleDTO(m)));
-				//TODO oq fazer se a lista estiver vazia?
-				return Ok(modules);
+
 		}
+		[SwaggerOperation(Summary = "Gets a single (childless) module from a certain application", Description = "Returns a ModuleDTO object" )]
 		//Get module by id
 		[HttpGet("{application}/{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle([FromRoute]string application, [FromRoute]int id){
-			var mod = _context.Modules.Find(id);
-			if (mod == null){
-				return NotFound();
-			}
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				var mod = _context.Modules.Find(id);
+				if (mod == null){
+					return NotFound("No such module found");
+				}
 
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if (app == null){
-				return UnprocessableEntity();
+				_context.Entry(mod).Reference(m => m.parent).Load();
+				if(mod.parent?.name != application){	
+					return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
+				}
+				return Ok(new ModuleDTO(mod));
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			return Ok(new ModuleDTO(mod));
 		}
+		[SwaggerOperation(Summary = "Gets a single module with his data children from a certain application", Description = "Returns a ModuleWithDataDTO object" )]
 		//get module 
 		[HttpGet("{application}/[controller]/{name}")]
 		[Produces("application/xml")]
 		public IActionResult GetSinglet([FromRoute]string application, [FromRoute]string name){
-			var mod = _context.Modules.SingleOrDefault(m => m.name == name);
-			if (mod == null){
-				return NotFound();
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+
+				var mod = _context.Modules.SingleOrDefault(m => m.name == name);
+				if (mod == null){
+					return NotFound("No such module found");
+				}
+
+				_context.Entry(mod).Reference(m => m.parent).Load();
+				if(mod.parent?.name != application){	
+					return NotFound("Modules father is not the application provided. Did You mean to use"+mod.parent?.name);
+				}
+				//fill 
+				var k =new ModuleWithDataDTO(mod);
+				//Load collection
+				_context.Entry(mod).Collection(m => m.datas).Load();
+				k.dataList = _context.Data.Where(d => d.parent == mod).Select(d => new DataDTO(d)).ToList();
+				return Ok(k);
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
 
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if (app == null){
-				return UnprocessableEntity();
-			}
-			//fill 
-			var k =new ModuleWithDataDTO(mod);
-			//Load collection
-			_context.Entry(mod).Collection(m => m.datas).Load();
-			k.dataList = _context.Data.Where(d => d.parent == mod).Select(d => new DataDTO(d)).ToList();
-			return Ok(k);
 		}
+		[SwaggerOperation(Summary = "Creates a new module", Description = "Returns the resulting ModuleDTO object" )]
 		//Create module
 		[HttpPost("{application}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Post([FromRoute] string application, [FromBody]ModuleDTO moduleDTO){
-			if(!preFlight(moduleDTO.res_type)){
-				//Find a more apropriate code for this
-				return UnprocessableEntity();
-			}
-			//check if application exists
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if(app == null){
-				return NotFound();
-			}
-			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == app.id)){
-				return Conflict();
-			}
-			var mod=moduleDTO.fromDTO();
-			mod.parent = app;
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
 
-			_context.Modules.Add(mod);
-			_context.SaveChanges();
-			return Ok(moduleDTO);
+				if(!preFlight(moduleDTO.res_type)){
+					//Find a more apropriate code for this
+					return UnprocessableEntity("Invalid resource type");
+				}
+				//check if application exists
+				var app = _context.Applications.SingleOrDefault(a => a.name == application);
+				if(app == null){
+					return NotFound("No such application found");
+				}
+				//check uniqueness
+				if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == moduleDTO.id)){
+					return Conflict("Either a module with this name already exists or the id is already in use");
+				}
+				var mod=moduleDTO.fromDTO();
+				mod.parent = app;
+
+				_context.Modules.Add(mod);
+				_context.SaveChanges();
+				return Ok(new ModuleDTO(mod));
+			}catch(Exception e){
+				return BadRequest(e.Message);
+			}
+
 		}
+		[SwaggerOperation(Summary = "Updates a module name", Description = "Returns the resulting ModuleDTO object" )]
 		//Update application
 		[HttpPut("{application}/{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Put([FromRoute]string application, [FromRoute]string name,[FromBody]ModuleDTO moduleDTO){
-			if(!preFlight(moduleDTO.res_type)){
-				//Find a more apropriate code for this
-				return UnprocessableEntity();
-			}
-			var mod = _context.Modules.SingleOrDefault(a => a.name == name);
-			if(mod == null){
-				return NotFound();
-			}
-			//check if application is the modules parent
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if(app == null){
-				Console.WriteLine("Application not found");
-				return UnprocessableEntity();
-			}
-			if(mod.parent != app){
-				Console.WriteLine("Application is not the modules parent");
-				return UnprocessableEntity();
-			}
+			//this is not optimal but since the teachers don't really want us to care for prolongued usage and will penalise us for any untreated errors its a must
+			try{
+				if(!preFlight(moduleDTO.res_type)){
+					//Find a more apropriate code for this
+					return UnprocessableEntity("Invalid resource type");
+				}
+				var mod = _context.Modules.SingleOrDefault(a => a.name == name);
+				if(mod == null){
+					return NotFound("No module with such name exists");
+				}
+				//check if application is the modules parent;
+				_context.Entry(mod).Reference(m => m.parent).Load();
 
-			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == mod.id)){
-				return Conflict();
+				if(mod.parent?.name != application){
+					return NotFound("The application provided isnt the modules parent. Did you meant to say: "+mod.parent?.name+"?");
+				}
+
+				//check uniqueness
+				if(_context.Modules.Any(a => a.name == moduleDTO.name)){
+					return Conflict("A module with this name already exists");
+				}
+
+				
+				// NO id changes
+				mod.name = moduleDTO.name;
+				// TODO: SHOULD THIS BE CHANGED ON PUT?
+				///app.creation_dt = application.creation_dt;
+
+				_context.Modules.Update(mod);
+				_context.SaveChanges();
+				return Ok(new ModuleDTO(mod));
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-
-			
-			// NO id changes
-			mod.name = moduleDTO.name;
-			// TODO: SHOULD THIS BE CHANGED ON PUT?
-			///app.creation_dt = application.creation_dt;
-
-			_context.Modules.Update(mod);
-			_context.SaveChanges();
-			return Ok(new ModuleDTO(mod));
 		}
+		[SwaggerOperation(Summary = "Deletes a module", Description = "Returns the deleted ModuleDTO object, will also remove any children associated with this module(cascade)" )]
 		//Delete application
 		[HttpDelete("{application}/{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
 		public IActionResult Delete(string application, string name ){
-			
-			//check if application is the modules parent
-			var app = _context.Applications.SingleOrDefault(a => a.name == application);
-			if(app == null){
-				Console.WriteLine("Application not found");
-				return UnprocessableEntity();
+			try{
+				var mod = _context.Modules.SingleOrDefault(a => a.name == name);
+				if(mod == null){
+					return NotFound("No such module found");
+				}
+				_context.Entry(mod).Reference(m => m.parent).Load();
+				if(mod.parent?.name != application){
+					return NotFound("The application provided isnt the modules parent. Did you meant to say: "+mod.parent?.name+"?");
+				}
 				
+				_context.Modules.Remove(mod);
+				_context.SaveChanges();
+				return Ok(new ModuleDTO(mod));
+			}catch(Exception e){
+				return BadRequest(e.Message);
 			}
-			var mod = _context.Modules.SingleOrDefault(a => a.name == name);
-			if(mod == null){
-				return NotFound();
-			}
-			
-			if(mod.parent != app){
-				Console.WriteLine("Application is not the modules parent");
-				return NotFound();
-			}
-			
-			_context.Modules.Remove(mod);
-			_context.SaveChanges();
-			return Ok(new ModuleDTO(mod));
+
 		}
 
 
@@ -162,6 +191,7 @@ namespace somiod.Controllers{
         [Required]
 		[MaxLength(20)]
 		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Module names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
+		[DefaultValue("SampleModule")]
 		public string name { get; set; }
 		[DefaultValue("module")]
 		public string res_type { get; set; }
