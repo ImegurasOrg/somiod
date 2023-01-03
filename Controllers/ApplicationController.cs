@@ -15,8 +15,12 @@ namespace somiod.Controllers{
 			_context = context;
 			res_type= Structures.res_type.application;
 		}
-	
-		//Get all applications
+
+		/// <summary>
+		/// Gets all applications from the database
+		/// </summary>
+		/// <remarks>Returns a ArrayOfApplicationDTO object that wraps the actual dto objects</remarks>
+		/// <response code="200">List successfully returned</response>
 		[HttpGet]
 		[Produces("application/xml")]
 		public IActionResult Get(){
@@ -25,7 +29,6 @@ namespace somiod.Controllers{
 			return Ok(applications);
 		}
 		
-		//Get application by id
 		[HttpGet("{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle(int id){
@@ -46,7 +49,7 @@ namespace somiod.Controllers{
 			}
 			var app=application.fromDTO();
 			//check if application already exists
-			if(_context.Applications.Any(a => a.name == app.name || a.id == app.id)){
+			if(_context.Applications.Any(a => a.name == app.name || a.id == application.id)){
 				return Conflict("Application name already exists or the id is already in use");
 			}
 	
@@ -55,7 +58,7 @@ namespace somiod.Controllers{
 			_context.SaveChanges();
 			return Ok(application);
 		}
-		//Update application
+
 		[HttpPut("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]

@@ -78,7 +78,7 @@ namespace somiod.Controllers{
 				return NotFound("No such application found");
 			}
 			//check uniqueness
-			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == app.id)){
+			if(_context.Modules.Any(a => a.name == moduleDTO.name|| a.id == moduleDTO.id)){
 				return Conflict("Either a module with this name already exists or the id is already in use");
 			}
 			var mod=moduleDTO.fromDTO();
@@ -149,6 +149,7 @@ namespace somiod.Controllers{
         [Required]
 		[MaxLength(20)]
 		[RegularExpression(@"^[a-zA-Z\-_0-9]+", ErrorMessage = "Module names cant have any character thats not a latin letter, a numeral or the symbols hyphen and underscore")] 
+		[DefaultValue("SampleModule")]
 		public string name { get; set; }
 		[DefaultValue("module")]
 		public string res_type { get; set; }
