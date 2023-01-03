@@ -22,7 +22,7 @@ namespace somiod.Controllers{
 			_context = context;
             res_type = Structures.res_type.subscription;
 		}
-	
+		[SwaggerOperation(Summary = "Creates a new subscription resource", Description = "Returns provided SubscriptionDTO, used by clients to warn the server of their subscription or unsubscrition of a certain mqtt endpoint" )]
 		[HttpPost("[controller]/{application}/{module}")]
 		[Consumes("application/xml")]
 		[Produces("application/xml")]
@@ -53,12 +53,12 @@ namespace somiod.Controllers{
 				subscription.parent=mod;
 				_context.Add(subscription);
 				_context.SaveChanges();
-				return Ok(subscriptionDTO);
+				return Ok(new SubscriptionDTO(subscription));
 			}catch(Exception e){
 				return BadRequest(e.Message);
 			}
 		}
-	
+		[SwaggerOperation(Summary = "Deletes all subscriptions resources that have both the module and name provided", Description = "Returns an ArrayOfSubscriptionDTO that contains deleted resources" )]
 		[HttpDelete("{application}/{module}/{name}")]
 		[Produces("application/xml")]
 		public IActionResult Delete([FromRoute]string application, [FromRoute]string module, [FromRoute]string name){

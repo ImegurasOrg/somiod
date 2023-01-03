@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
 using somiod.utils;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace somiod.Controllers{
 	[ApiController]
@@ -16,6 +17,7 @@ namespace somiod.Controllers{
 			_context = context;
 			res_type= Structures.res_type.module;
 		}
+		[SwaggerOperation(Summary = "Gets all child modules from a certain application", Description = "Returns a ArrayOfModuleDTO object that wraps the actual dto objects" )]
 		[HttpGet("{application}")]
 		[Produces("application/xml")]
 		public IActionResult Get([FromRoute]string application){
@@ -34,6 +36,7 @@ namespace somiod.Controllers{
 			}
 
 		}
+		[SwaggerOperation(Summary = "Gets a single (childless) module from a certain application", Description = "Returns a ModuleDTO object" )]
 		//Get module by id
 		[HttpGet("{application}/{id:int}")]
 		[Produces("application/xml")]
@@ -54,6 +57,7 @@ namespace somiod.Controllers{
 				return BadRequest(e.Message);
 			}
 		}
+		[SwaggerOperation(Summary = "Gets a single module with his data children from a certain application", Description = "Returns a ModuleWithDataDTO object" )]
 		//get module 
 		[HttpGet("{application}/[controller]/{name}")]
 		[Produces("application/xml")]
@@ -81,6 +85,7 @@ namespace somiod.Controllers{
 			}
 
 		}
+		[SwaggerOperation(Summary = "Creates a new module", Description = "Returns the provided ModuleDTO object" )]
 		//Create module
 		[HttpPost("{application}")]
 		[Produces("application/xml")]
@@ -107,12 +112,13 @@ namespace somiod.Controllers{
 
 				_context.Modules.Add(mod);
 				_context.SaveChanges();
-				return Ok(moduleDTO);
+				return Ok(new ModuleDTO(mod));
 			}catch(Exception e){
 				return BadRequest(e.Message);
 			}
 
 		}
+		[SwaggerOperation(Summary = "Updates a module name", Description = "Returns the provided ModuleDTO object" )]
 		//Update application
 		[HttpPut("{application}/{name}")]
 		[Produces("application/xml")]
@@ -153,6 +159,7 @@ namespace somiod.Controllers{
 				return BadRequest(e.Message);
 			}
 		}
+		[SwaggerOperation(Summary = "Deletes a module", Description = "Returns the provided ModuleDTO object, will also remove any children associated with this module(cascade)" )]
 		//Delete application
 		[HttpDelete("{application}/{name}")]
 		[Produces("application/xml")]
@@ -174,7 +181,7 @@ namespace somiod.Controllers{
 			}catch(Exception e){
 				return BadRequest(e.Message);
 			}
-			
+
 		}
 
 
