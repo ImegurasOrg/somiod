@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using somiod.DAL;
 using somiod.Models;
 using somiod.utils;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace somiod.Controllers{
 	[ApiController]
@@ -16,11 +17,9 @@ namespace somiod.Controllers{
 			res_type= Structures.res_type.application;
 		}
 
-		/// <summary>
-		/// Gets all applications from the database
-		/// </summary>
-		/// <remarks>Returns a ArrayOfApplicationDTO object that wraps the actual dto objects</remarks>
-		/// <response code="200">List successfully returned</response>
+		[SwaggerOperation(Summary = "Gets all applications from the database", Description = "Returns a ArrayOfApplicationDTO object that wraps the actual dto objects" )]
+		//[ProducesResponseType(typeof(ApplicationDTO[]), 200)]
+		
 		[HttpGet]
 		[Produces("application/xml")]
 		public IActionResult Get(){
@@ -28,7 +27,7 @@ namespace somiod.Controllers{
 			List<ApplicationDTO> applications = new List<ApplicationDTO>(_context.Applications.Select(a=> new ApplicationDTO(a)));
 			return Ok(applications);
 		}
-		
+		[SwaggerOperation(Summary = "Gets a single childless application from the database", Description = "Returns a ApplicationDTO object" )]
 		[HttpGet("{id:int}")]
 		[Produces("application/xml")]
 		public IActionResult GetSingle(int id){
@@ -39,7 +38,7 @@ namespace somiod.Controllers{
 			}
 			return Ok(new ApplicationDTO(application));
 		}
-		//Create application
+		[SwaggerOperation(Summary = "Creates an application and posts it on the database", Description = "Returns the ApplicationDTO provided" )]
 		[HttpPost]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
@@ -56,9 +55,9 @@ namespace somiod.Controllers{
 
 			_context.Applications.Add(app);
 			_context.SaveChanges();
-			return Ok(application);
+			return Ok(new ApplicationDTO(app));
 		}
-
+		[SwaggerOperation(Summary = "Updates an application name on the database", Description = "Returns the ApplicationDTO provided, It wont update id nor creation_dt" )]
 		[HttpPut("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
@@ -77,14 +76,14 @@ namespace somiod.Controllers{
 			}
 			// NO id changes
 			app.name = application.name;
-			// TODO: SHOULD THIS BE CHANGED ON PUT?
+			// SHOULD THIS BE CHANGED ON PUT?
 			///app.creation_dt = application.creation_dt;
 
 			_context.Applications.Update(app);
 			_context.SaveChanges();
 			return Ok(new ApplicationDTO(app));
 		}
-		//Delete application
+		[SwaggerOperation(Summary = "Deletes an application from the database", Description = "Returns the ApplicationDTO provided, Will also remove any children associated(cascade)" )]
 		[HttpDelete("{name}")]
 		[Produces("application/xml")]
 		[Consumes("application/xml")]
